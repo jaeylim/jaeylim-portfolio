@@ -9,7 +9,7 @@
 #### SaaS 벤더 통합 (헬프데스크 구축)
 
 NCP 환경에 Zammad 헬프데스크를 구축하며 다음 벤더 솔루션을 연동:
-• 상세 설정 항목은 포트폴리오 README.md의 노션 링크 "zammad" 확인
+• 상세 설정 항목은 포트폴리오 README.md의 노션 링크 "zammad" 확인\
 ▸https://app.notion.com/p/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?p=3768be1cd13d80df9e60ca9e05fe78ed&pm=s
 
 
