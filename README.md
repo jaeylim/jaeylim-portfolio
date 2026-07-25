@@ -6,7 +6,7 @@
 
 #### KEDA 오토스케일링 성능 분석
 
-[#keda-오토스케일링-성능-분석](#keda-오토스케일링-성능-분석)
+[#keda-오토스케일링-성능-분석](https://github.com/jaeylim/keda-broker-benchmark)
 
 `https://github.com/jaeylim/keda-broker-benchmark` — 메시지 브로커 4종(RabbitMQ, Kafka, Redis Streams, NATS JetStream)의 부하 유형별(급격/지속/감소) 오토스케일링 성능을 정량 비교한 석사 논문 연구. 한양대학교 공학대학원 우수 논문상 수상, KCI(KIIT) 등재 예정.
 
