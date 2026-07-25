@@ -1,0 +1,55 @@
+### Jaeyeon Portfolio
+
+클라우드 인프라 설계·구축·운영 및 보안 컴플라이언스 실무 자료 모음.
+
+- 🔗 [AWS/NCP 서비스 POC 정리 (Notion)](노션링크) — AWS/NCP 주요 서비스 실습 및 구성 검증 노트
+
+#### KEDA 오토스케일링 성능 분석
+
+[#keda-오토스케일링-성능-분석](#keda-오토스케일링-성능-분석)
+
+`https://github.com/jaeylim/keda-broker-benchmark` — 메시지 브로커 4종(RabbitMQ, Kafka, Redis Streams, NATS JetStream)의 부하 유형별(급격/지속/감소) 오토스케일링 성능을 정량 비교한 석사 논문 연구. 한양대학교 공학대학원 우수 논문상 수상, KCI(KIIT) 등재 예정.
+
+#### AWS/NCP 보안 아키텍처
+
+[#awsncp-보안-아키텍처](#awsncp-보안-아키텍처)
+
+`aws-ncp-security-architecture/` PCI-DSS 요구사항 기반 AWS 보안 구성(GuardDuty, EventBridge, mTLS, IAM 정책 등) 실무 기록.
+
+#### 벤더·외주사 기술 검토 사례
+
+[#벤더외주사-기술-검토-사례](#벤더외주사-기술-검토-사례)
+
+`vendor-review-cases/` 침투테스트 업체, SaaS 벤더(M365, Entra ID) 협업 및 산출물 검토 기록.
+
+#### 컴플라이언스 대응 프로세스
+
+[#컴플라이언스-대응-프로세스](#컴플라이언스-대응-프로세스)
+
+`compliance-mapping/` PCI-DSS/CSAP/ISO 27001 증적 수집 및 적용범위 조율 프로세스.
+
+#### Kubernetes 보안·장애 대응
+
+[#kubernetes-보안장애-대응](#kubernetes-보안장애-대응)
+
+`k8s-security/` Istio Ambient Mode 구성, 장애 시나리오 설계·검증 기록.
+
+---
+
+#### 폴더 구조:
+
+[#폴더-구조](#폴더-구조)
+
+```
+jaeylim-portfolio/
+├── aws-ncp-security-architecture/
+│   └── README.md
+├── vendor-review-cases/
+│   └── README.md
+├── compliance-mapping/
+│   └── README.md
+└── k8s-security/
+    └── README.md
+```
+
+※ 모든 항목은 실제 업무 경험 기반이며, 고객사명 등 기밀 정보는 일반화하여 기술하였습니다.
