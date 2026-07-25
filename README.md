@@ -1,8 +1,8 @@
-### Jaeyeon Portfolio
+### [jaeylim-portfolio]
 
 클라우드 인프라 설계·구축·운영 및 보안 컴플라이언스 실무 자료 모음.
 
-- 🔗 [AWS/NCP 서비스 POC 정리 (Notion)](노션링크) — AWS/NCP 주요 서비스 실습 및 구성 검증 노트
+- 🔗 [AWS/NCP 서비스 POC 정리 (Notion)](https://equal-handball-d3b.notion.site/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?source=copy_link) — AWS/NCP 주요 서비스 실습 및 구성 검증 노트
 
 #### KEDA 오토스케일링 성능 분석
 
@@ -20,7 +20,7 @@
 
 [#벤더외주사-기술-검토-사례](#벤더외주사-기술-검토-사례)
 
-`vendor-review-cases/` 침투테스트 업체, SaaS 벤더(M365, Entra ID) 협업 및 산출물 검토 기록.
+`vendor-review/` 침투테스트 업체, SaaS 벤더(M365, Entra ID) 협업 및 산출물 검토 기록.
 
 #### 컴플라이언스 대응 프로세스
 
@@ -28,11 +28,11 @@
 
 `compliance-mapping/` PCI-DSS/CSAP/ISO 27001 증적 수집 및 적용범위 조율 프로세스.
 
-#### Kubernetes 보안·장애 대응
+#### Kubernetes 장애 대응
 
-[#kubernetes-보안장애-대응](#kubernetes-보안장애-대응)
+[#kubernetes-장애-대응](#kubernetes-장애-대응)
 
-`k8s-security/` Istio Ambient Mode 구성, 장애 시나리오 설계·검증 기록.
+`kubernetes/` Istio Ambient Mode 구성, 장애 시나리오 설계·검증 기록.
 
 ---
 
@@ -44,11 +44,11 @@
 jaeylim-portfolio/
 ├── aws-ncp-security-architecture/
 │   └── README.md
-├── vendor-review-cases/
+├── vendor-review/
 │   └── README.md
 ├── compliance-mapping/
 │   └── README.md
-└── k8s-security/
+└── kubernetes/
     └── README.md
 ```
 
