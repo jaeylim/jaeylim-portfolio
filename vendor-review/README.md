@@ -2,13 +2,16 @@
 
 #### 침투테스트 벤더 협업
 
-- 외부 침투테스트 업체와 협업하여 mTLS 클라이언트 인증서 발급 절차 진행 (상세는 `aws-ncp-security-architecture/` 참고)
+- 외부 침투테스트 업체와 협업하여 mTLS 클라이언트 인증서 발급 절차 진행
 - WAF 예외 처리(Sefinity Air 포털을 통한 티켓 등록)
 - 스캔 범위(ASV 스캔 vs 침투테스트) 구분 관리
 
 #### SaaS 벤더 통합 (헬프데스크 구축)
 
 NCP 환경에 Zammad 헬프데스크를 구축하며 다음 벤더 솔루션을 연동:
+• 상세 설정 항목은 포트폴리오 README.md의 노션 링크 "zammad" 확인\
+▸https://app.notion.com/p/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?p=3768be1cd13d80df9e60ca9e05fe78ed&pm=s
+
 
 - M365 Graph Mail: 이메일 채널을 티켓으로 전환하는 연동 구성
 - Entra ID SSO: Azure 앱 등록 기반 SSO 구성. `NGINX_SERVER_SCHEME: https` 설정 누락으로 CSRF/422 오류 발생 → 설정 추가로 해결
