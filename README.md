@@ -1,4 +1,4 @@
-1️⃣ 클라우드 인프라 설계·구축·운영 및 보안 컴플라이언스 실무 자료 모음.
+[클라우드 인프라 설계·구축·운영 및 보안 컴플라이언스 실무 자료 모음.]
 
 🔗 [AWS/NCP 서비스 POC 정리 (Notion)](https://equal-handball-d3b.notion.site/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?source=copy_link) — AWS/NCP 주요 서비스 실습 및 구성 검증 노트
 
