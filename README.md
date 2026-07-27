@@ -4,7 +4,7 @@
 
 - 🔗 [AWS/NCP 서비스 POC 정리 (Notion)](https://equal-handball-d3b.notion.site/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?source=copy_link) — AWS/NCP 주요 서비스 실습 및 구성 검증 노트
 
-#### KEDA 오토스케일링 성능 분석
+#### [논문] KEDA 오토스케일링 성능 분석
 
 [#keda-오토스케일링-성능-분석](https://github.com/jaeylim/keda-broker-benchmark)
 
