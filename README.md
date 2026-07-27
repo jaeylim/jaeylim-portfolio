@@ -28,9 +28,9 @@
 
 `compliance-mapping/` PCI-DSS/CSAP/ISO 27001 증적 수집 및 적용범위 조율 프로세스.
 
-#### Kubernetes 장애 대응
+#### Kubernetes 운영/관리
 
-[#kubernetes-대응](https://github.com/jaeylim/jaeylim-test-repo/tree/main/TF%20(TroubleShooting))
+[#kubernetes-운영/관리](https://github.com/jaeylim/jaeylim-test-repo/tree/main/TF%20(TroubleShooting))
 
 `kubernetes/` Istio Ambient Mode 구성, 장애 시나리오 설계·검증 기록.
 
