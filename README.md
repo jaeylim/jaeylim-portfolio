@@ -21,7 +21,6 @@ PCI-DSS, CSAP, ISO27001 기준 증적 수집 및 적용범위 조율 프로세�
 
 #### tooling/
 Zammad/OS-Ticket 검토·배포, 침투테스트 업체 및 SaaS 벤더(M365, Entra ID) 협업 기록
----
 
 #### 폴더 구조
 ```
