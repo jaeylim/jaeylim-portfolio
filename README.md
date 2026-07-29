@@ -7,23 +7,23 @@
 #### 🔗 [LinkedIn](www.linkedin.com/in/jaeyeon-lim-3382a61b7) -- 프로필 바로가기
 ----
 
-### cloud-architecture/
+#### cloud-architecture/
 AWS/NCP 아키텍처 설계/구축 및 IaC(Terraform, Ansible)구성 기록
 
-### cicd/
+#### cicd/
 Jenkins, ArgoCD, GitHub Actions 기반 배포 파이프라인 구성 기록
 
-### kubernetes/
+#### kubernetes/
 KEDA 오토스케일링 성능 분석(석사 논문, 한양대 우수논문상 수상·KCI 등재 예정), Istio Ambient Mode, NKS 구성 및 장애 시나리오 검증 기록
 
-### security-compliance/
+#### security-compliance/
 PCI-DSS, CSAP, ISO27001 기준 증적 수집 및 적용범위 조율 프로세스, GuardDuty/IAM/mTLS/CloudHSM/Config Rules 등 보안 구성 실무 기록
 
-### tooling/
+#### tooling/
 Zammad/OS-Ticket 검토·배포, 침투테스트 업체 및 SaaS 벤더(M365, Entra ID) 협업 기록
 ---
 
-### 폴더 구조
+#### 폴더 구조
 ```
 jaeylim-portfolio/
 ├── README.md
