@@ -2,8 +2,7 @@
 
 공공기관 클라우드(NCP 공공 리전) 환경에서 MSA 전환 및 Kubernetes 기반 서비스를 구축한 아키텍처입니다. 실제 기관명·프로젝트 코드명·상세 리소스명은 일반화하여 표기하였습니다.
 
-#### 전체 구성도
-
+#### 전체 구성도 
 ```mermaid
 graph TB
     Client1[기관 사용자] -->|IPSec VPN| SecureTunnel
