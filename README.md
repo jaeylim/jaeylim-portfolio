@@ -3,8 +3,8 @@
 #### AWS/NCP 클라우드 아키텍처 및 보안 컴플라이언스(PCI-DSS, CSAP, ISO27001) 실무 포트폴리오
 ---
 
-#### 🔗 [Notion](https://equal-handball-d3b.notion.site/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?source=copy_link) AWS/NCP 서비스 POC 정리
-#### 🔗 [LinkedIn](www.linkedin.com/in/jaeyeon-lim-3382a61b7) 프로필 바로가기
+#### 🔗 [Notion](https://equal-handball-d3b.notion.site/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?source=copy_link) -- AWS/NCP 서비스 POC 정리
+#### 🔗 [LinkedIn](www.linkedin.com/in/jaeyeon-lim-3382a61b7) -- 프로필 바로가기
 ----
 
 #### cloud-architecture/
@@ -19,9 +19,10 @@ KEDA 오토스케일링 성능 분석(석사 논문, 한양대 우수논문상 �
 #### security-compliance/
 PCI-DSS, CSAP, ISO27001 기준 증적 수집 및 적용범위 조율 프로세스, GuardDuty/IAM/mTLS/CloudHSM/Config Rules 등 보안 구성 실무 기록
 
-## tooling/
+#### tooling/
 Zammad/OS-Ticket 검토·배포, 침투테스트 업체 및 SaaS 벤더(M365, Entra ID) 협업 기록
 ---
+
 #### 폴더 구조
 ```
 jaeylim-portfolio/
