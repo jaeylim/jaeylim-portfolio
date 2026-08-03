@@ -20,7 +20,7 @@ KEDA 오토스케일링 성능 분석(석사 논문, 한양대 우수논문상 �
 PCI-DSS, CSAP, ISO27001 기준 증적 수집 및 적용범위 조율 프로세스, GuardDuty/IAM/mTLS/CloudHSM/Config Rules 등 보안 구성 실무 기록
 
 #### [tooling/](https://github.com/jaeylim/jaeylim-portfolio/tree/main/tooling)
-내부 티켓 시스템 검토·배포 및 SaaS(M365, Entra ID) 협업 기록
+내부 티켓 시스템 검토·설계·배포 및 SaaS(M365, Entra ID) 협업 기록
 
 #### 폴더 구조
 ```
