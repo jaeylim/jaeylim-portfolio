@@ -18,6 +18,18 @@
 
 #### 3. 아키텍처
 - NCP 인프라 위에 Docker Compose 기반 컨테이너 스택으로 구성
+```
+브라우저
+  ↓ (443 HTTPS)
+호스트 Nginx → X-Forwarded-Proto: https 전달
+  ↓ (8080 HTTP)
+컨테이너 Nginx → NGINX_SERVER_SCHEME: https 덕분에 
+                  X-Forwarded-Proto: https 유지하며 전달
+  ↓ (3000 HTTP)
+Rails (Zammad) → "아, 원래 요청이 https였구나!" 인식
+                  → callback URL을 https://로 생성
+                  → CSRF 검증 통과
+```
 
 #### 4. 통합 구성
 - **M365 Graph Mail**: 이메일 기반 티켓 생성/연동
