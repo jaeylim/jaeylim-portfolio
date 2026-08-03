@@ -6,11 +6,10 @@
 · 대상 도구는 Zammad와 OS-Ticket이며, 검토 결과 Zammad를 최종 선정해 NCP 인프라에 Docker Compose 기반으로 배포
 
 #### 2. 도구 선정: Zammad vs OS-Ticket
-
 | 항목 | Zammad | OS-Ticket |
 |---|---|---|
-| UI/UX | 실무 담당자(비개발 직군 포함) 접근성 고려, 채택 우선순위 반영 | 별도 커스터마이징 필요 |
-| 자동화 | Core Workflows 기반 트리거 자동화 구현 (승인 프로세스 등) | 기본 라우팅/배정 수준 |
+| UI/UX | 실무 담당자 접근성 고려시 최적 | - |
+| 자동화 | Core Workflows 기반 트리거 자동화 구현 (승인 프로세스 등) | 기본 라우팅/배정 |
 | 인증 연동 | Entra ID SSO, M365 Graph Mail 연동 검증 완료 | Entra ID 연동 자체는 가능하나, 자동화 확장성에서 Zammad 대비 제한적 |
 | 보안 리스크 | - | 레거시 PHP 아키텍처 기반. 검토 시점에 PDF 생성 라이브러리 관련 파일 읽기 취약점(CVE-2026-22200) 등 보안 이슈 확인, 채택 리스크 판단에 반영 |
 
@@ -18,6 +17,8 @@
 
 #### 3. 아키텍처
 - NCP 인프라 위에 Docker Compose 기반 컨테이너 스택으로 구성
+- 리버스 프록시 이중 구조 (호스트 Nginx → 컨테이너 Nginx)
+
 ```
 브라우저
   ↓ (443 HTTPS)
@@ -26,9 +27,56 @@
 컨테이너 Nginx → NGINX_SERVER_SCHEME: https 덕분에 
                   X-Forwarded-Proto: https 유지하며 전달
   ↓ (3000 HTTP)
-Rails (Zammad) → "아, 원래 요청이 https였구나!" 인식
+Rails (Zammad) → 원요청 https로 인식
                   → callback URL을 https://로 생성
                   → CSRF 검증 통과
+```
+
+```mermaid
+flowchart TB
+    USER["사용자 / 고객<br/>(웹 브라우저)"]
+
+    subgraph NCP["NCP 인프라"]
+        subgraph HOST["호스트"]
+            HNGINX["호스트 Nginx<br/>:443 HTTPS 수신<br/>X-Forwarded-Proto: https 전달"]
+        end
+
+        subgraph CONTAINERS["Docker Compose 스택"]
+            CNGINX["컨테이너 Nginx<br/>:8080 HTTP 수신<br/>NGINX_SERVER_SCHEME: https 설정으로<br/>X-Forwarded-Proto 유지"]
+
+            subgraph APP["Application Layer"]
+                RAILS["zammad-railsserver :3000<br/>(+ 커스텀 State 적용)<br/>https 요청으로 인식 → CSRF 검증 통과"]
+                WEBSOCKET["zammad-websocket"]
+                SCHEDULER["zammad-scheduler"]
+                INIT["zammad-init"]
+            end
+
+            subgraph DATA["Data Layer"]
+                POSTGRES[("PostgreSQL")]
+                ELASTIC[("Elasticsearch")]
+                REDIS[("Redis")]
+                MEMCACHED[("Memcached")]
+            end
+        end
+    end
+
+    M365["M365 Graph Mail"]
+    ENTRA["Entra ID"]
+
+    USER -->|"443 HTTPS"| HNGINX
+    HNGINX -->|"8080 HTTP<br/>+ X-Forwarded-Proto: https"| CNGINX
+    CNGINX -->|"3000 HTTP<br/>+ X-Forwarded-Proto: https 유지"| RAILS
+    CNGINX --> WEBSOCKET
+
+    RAILS --> POSTGRES
+    RAILS --> ELASTIC
+    RAILS --> MEMCACHED
+    SCHEDULER --> POSTGRES
+    WEBSOCKET --> REDIS
+    INIT --> POSTGRES
+
+    RAILS -->|이메일 연동| M365
+    HNGINX -->|SSO 인증| ENTRA
 ```
 
 #### 4. 통합 구성
@@ -92,6 +140,5 @@ state.save!
 - **증상**: Entra ID SSO 연동 중 CSRF 토큰 검증 실패로 422 오류 발생
 - **원인**: 리버스 프록시 환경에서 서버 스킴 설정 누락
 - **해결**: `NGINX_SERVER_SCHEME: https` 환경변수 설정으로 해결
-
 ---
 ※ 모든 항목은 실제 업무 기반이며, 고객사명 등 기밀 정보는 일반화하여 기술하였습니다.
