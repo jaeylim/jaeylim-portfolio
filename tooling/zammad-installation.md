@@ -94,16 +94,22 @@ sudo systemctl restart nginx
 
 ```
 
-### 5. 커스터마이징 (.env)
-공식 compose 파일은 기본값으로 동작하며, 리버스 프록시/SSO 연동을 위해 아래 환경변수를 `.env`에 커스터마이징.
+### 5. 커스터마이징
+공식 compose 파일에서 `NGINX_SERVER_SCHEME` 값이 기본적으로 빈 값으로 되어 있어, 리버스 프록시(호스트 Nginx) 뒤에서 HTTPS 요청임을 Rails가 인식하도록 기본값을 `https`로 직접 수정
 
-1) scheme 설정 (https)
-2) 컨테이너 재시작 (docker compose up -d)
+변경 전 (공식 원본)
+```yaml
+NGINX_SERVER_SCHEME:
+```
 
-```env
-NGINX_SERVER_SCHEME=https
-ZAMMAD_FQDN=<내부 도메인>
-RAILS_TRUSTED_PROXIES=<호스트 Nginx 대역>
+변경 후
+```yaml
+NGINX_SERVER_SCHEME: ${NGINX_SERVER_SCHEME:-https}
+```
+
+적용:
+```bash
+docker compose up -d
 ```
 
 ※ compose 파일 전체는 공식 저장소 원본을 그대로 사용했으며, 위 환경변수만 실제 배포 환경에 맞게 재정의했다. 상세 아키텍처/트러블슈팅은 [README.md](./README.md) 참고.
