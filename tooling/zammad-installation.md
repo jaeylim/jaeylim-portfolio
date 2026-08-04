@@ -109,6 +109,7 @@ NGINX_SERVER_SCHEME: ${NGINX_SERVER_SCHEME:-https}
 
 적용:
 ```bash
+sed -i 's/NGINX_SERVER_SCHEME:\${NGINX_SERVER_SCHEME/NGINX_SERVER_SCHEME: \${NGINX_SERVER_SCHEME/' ~/zammad-docker-compose/docker-compose.yml
 docker compose up -d
 ```
 
