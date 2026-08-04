@@ -44,16 +44,16 @@ docker compose up -d
 docker ps
 ```
 ```
-# 기동 컨테이너 (9개)
-zammad-nginx -- 
-zammad-scheduler
+# 기동 컨테이너
+zammad-nginx 
+zammad-scheduler -- 예약 작업 처리, 알림발송/자동티켓종료/백그라운드 스케줄 작업
 zammad-railsserver
 zammad-backup
-zammad-websocket
-zammad-postgresql
-zammad-redis
-zammad-memcached
-zammad-elasticsearch
+zammad-websocket -- 실시간 통신 담당, 새티켓알림 등 브라우저에 푸시
+zammad-postgresql -- 데이터 저장, 티켓/사용자/설정
+zammad-redis -- 세션/캐시 저장소, 실시간 데이터 임시 저장
+zammad-memcached -- 반복 조회되는 데이터를 메모리에 캐싱
+zammad-elasticsearch -- 검색 엔진, 티켓/고객 
 ```
 
 ### 4. Nginx 설치 및 프록시 설정
