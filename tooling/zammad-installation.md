@@ -43,10 +43,9 @@ docker compose up -d
 # 컨테이너 상태 확인
 docker ps
 ```
-
 ```
 # 기동 컨테이너 (9개)
-zammad-nginx
+zammad-nginx -- 
 zammad-scheduler
 zammad-railsserver
 zammad-backup
@@ -57,8 +56,49 @@ zammad-memcached
 zammad-elasticsearch
 ```
 
-### 4. 커스터마이징 (.env)
-공식 compose 파일은 기본값으로 동작하며, 리버스 프록시/SSO 연동을 위해 아래 환경변수를 `.env`에 커스터마이징했다.
+### 4. Nginx 설치 및 프록시 설정
+```bash
+# Nginx (호스트) 설치
+sudo dnf install -y nginx
+sudo systemctl enable --now nginx
+
+# 인증서 배치
+sudo mkdir -p /etc/nginx/ssl
+sudo cp <기존_인증서>.crt /etc/nginx/ssl/
+sudo cp <기존_키>.key /etc/nginx/ssl/
+sudo chmod 600 /etc/nginx/ssl/*.key
+
+# (기존 인증서 사용할 경우 유효기간 확인)
+openssl x509 -in /etc/nginx/ssl/<기존_인증서>.crt -noout -dates
+
+# Reverse Proxy 설정
+▸ /etc/nginx/conf.d/zammad-ssl.conf
+server {
+    listen 443 ssl;
+    server_name <내부 도메인>;
+
+    ssl_certificate     /etc/nginx/ssl/<기존_인증서>.crt;
+    ssl_certificate_key /etc/nginx/ssl/<기존_키>.key;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+# 설정 검증 후 재시작
+sudo nginx -t
+sudo systemctl restart nginx
+
+```
+
+### 5. 커스터마이징 (.env)
+공식 compose 파일은 기본값으로 동작하며, 리버스 프록시/SSO 연동을 위해 아래 환경변수를 `.env`에 커스터마이징.
+
+1) scheme 설정 (https)
+2) 컨테이너 재시작 (docker compose up -d)
 
 ```env
 NGINX_SERVER_SCHEME=https
