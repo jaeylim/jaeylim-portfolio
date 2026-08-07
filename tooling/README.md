@@ -119,13 +119,17 @@ flowchart TD
 솔루션 자체 UI/설정 옵션만으로는 "진행중(In progress)"상태를 세분화할 수 없어, Rails 서버에 직접 커스텀 State를 추가
 ```ruby
 # 커스텀 State 추가
-state = Ticket::State.new(
-  name: 'In progress',
-  state_type: Ticket::StateType.find_by(name: 'open'),
-  updated_by_id: 1,
-  created_by_id: 1
-)
-state.save!
+docker exec zammad-docker-compose-zammad-railsserver-1 \
+  /opt/zammad/bin/rails r "
+    state = Ticket::State.new(
+      name: 'In progress',
+      state_type: Ticket::StateType.find_by(name: 'open'),
+      updated_by_id: 1,
+      created_by_id: 1
+    )
+    state.save!
+    puts 'In progress 생성 완료'
+  "
 ```
 Zammad UI 설정 범위를 벗어난 서버 레벨 직접 수정이므로, 향후 Zammad 버전 업데이트나 설정 변경 시 호환성 문제가 발생할 수 있음. 업데이트 전 커스텀 State 적용 여부를 반드시 확인하고, 변경 이력을 별도로 관리해 지속적으로 모니터링할 필요가 있음.
 
