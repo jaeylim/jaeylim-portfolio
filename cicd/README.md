@@ -45,10 +45,10 @@ flowchart LR
 
 *이미지 출처: [gspann.com - Continuous Delivery for Kubernetes with GitOps and Argo CD](https://www.gspann.com/resources/blogs/continuous-delivery-for-kubernetes-with-gitops-and-argo-cd/) 구조를 참고해 재구성*
 
-• Docker Hub
-• GHCR (GitHub Container Registry)
-• AWS ECR
-• NCP Container Registry
+• Docker Hub\
+• GHCR (GitHub Container Registry)\
+• AWS ECR\
+• NCP Container Registry\
 
 ---
 ### 3. 설계 결정: 왜 Pull 기반 CD(ArgoCD)인가
