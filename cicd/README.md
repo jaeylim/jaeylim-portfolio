@@ -10,7 +10,6 @@ GitHub Actions(CI) → GitHub Container Registry(GHCR) → ArgoCD(CD) → kubern
 [테스트 환경] 
 • NCP 서버(Rocky Linux 9.8, 4vCPU/7.5GB)
 
----
 ### 2. 아키텍처
 ```mermaid
 flowchart LR
@@ -50,13 +49,11 @@ flowchart LR
 • AWS ECR\
 • NCP Container Registry\
 
----
 ### 3. Pull 기반 CD(ArgoCD)
 Push 기반 CD(예: Jenkins/GHA가 파이프라인 내에서 `kubectl apply`를 직접 실행하는 방식)는 CI 도구가 클러스터 접근 자격 증명(kubeconfig)을 보유해야하기 때문에 CI 도구가 침해당했을 때 클러스터 전체가 노출되는 경로.
 
 ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장소를 주기적으로 폴링하며, 외부로 클러스터 자격 증명을 노출하지 않음. Git 커밋이 유일한 배포 트리거이자 유일한 공급원(source of truth)이 되므로, 배포 이력이 곧 Git 커밋 이력과 일치해 감사 추적(audit trail) 관점에서도 유리하다고 판단.
 
----
 ### 4. 구현 및 검증 절차
 | Phase | 내용 | 결과 |
 |---|---|---|
@@ -66,7 +63,6 @@ ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장�
 | 3 | ArgoCD 설치 및 Application 등록, 자동 동기화 구성 | 완료 |
 | 4 | 이미지 버전 변경 시 자동 배포 및 롤백 시나리오 검증 | 완료 |
 
----
 ### 5. 트러블슈팅
 실제 구성 과정에서 발생한 문제, 원인, 해결 기록
 
@@ -81,7 +77,6 @@ ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장�
 | 7 | `docker push` 시 `image not known` (build는 성공 로그 출력됨) | 최신 Docker CLI는 기본적으로 BuildKit을 사용하며, `--load` 옵션 없이는 빌드 결과가 로컬 이미지 목록에 반영되지 않음 | `docker buildx build --load` 로 명시적 로드 |
 | 8 | Jenkins agent 분리 구성(`docker:24-dind`, `docker:24-cli`) 시 `process apparently never started` | Alpine 기반 이미지가 Jenkins의 durable task(비대화형 스크립트 실행) 방식과 호환되지 않음. entrypoint 오버라이드로도 재현됨을 확인 | 원인을 Alpine 베이스 이미지의 셸 실행 방식 차이로 특정. Controller 내부 직접 실행(DooD) 구성이 현재 환경에서 더 안정적인 방식임을 확인하고 이를 기준선으로 채택 |
 
----
 ### 6. CI 도구 비교: GitHub Actions vs Jenkins
 | 항목 | GitHub Actions | Jenkins |
 |---|---|---|
@@ -92,17 +87,14 @@ ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장�
 | 컨테이너 빌드 환경 | 관리형 러너에 Docker 사전 포함 | 별도 구성 필요 (본 검증에서 다수의 환경 이슈 발생) |
 | 적합 환경 | GitHub 기반 팀, 클라우드 네이티브 워크플로우 | 온프레미스/에어갭 환경, 세밀한 커스터마이징이 필요한 대규모 조직 |
 
-본 검증에서 GitHub Actions는 별도 환경 구성 없이 곧바로 파이프라인이 동작한 반면, Jenkins는 컨테이너 런타임 호환성(Docker CLI 부재, 소켓 권한, BuildKit 동작 방식) 문제를 다수 해결해야 했다. 이는 Jenkins 자체의 결함이 아니라, "CI 실행 환경을 어디까지 직접 구성/운영해야 하는가"라는 관리형 서비스와 자체 호스팅 도구 간의 근본적인 차이를 보여준다.
+본 검증에서 GitHub Actions는 별도 환경 구성 없이 곧바로 파이프라인이 동작한 반면, Jenkins는 컨테이너 런타임 호환성(Docker CLI 부재, 소켓 권한, BuildKit 동작 방식) 문제가 포함됨. Jenkins 자체의 결함이 아니라, "CI 실행 환경을 어디까지 직접 구성/운영해야 하는가"라는 관리형 서비스와 자체 호스팅 도구 간의 근본적인 차이라고 판단.
 
----
 ### 7. 보안/컴플라이언스 관점 점검 사항
-- 초기 자격 증명 교체: ArgoCD, Jenkins 모두 설치 시 임의 생성된 초기 admin 비밀번호를 사용한다. CSAP/ISMS-P의 기본 계정·비밀번호 관리 통제 항목과 직결되는 지점이며, 프로덕션 환경에서는 최초 로그인 직후 즉시 교체가 필요하다.
-- PAT 권한 최소화: Classic PAT는 repo 단위 권한 제한이 불가능해 계정 전체 패키지에 접근 가능하다. 유출 시 영향 범위가 넓으므로 만료 기간을 짧게 설정하고, 사용 종료 즉시 폐기하는 것이 적절하다.
-- DooD(Docker-outside-of-Docker) 구성의 한계: 호스트 소켓을 컨테이너에 마운트하는 방식은 해당 컨테이너가 침해될 경우 호스트 수준 권한 획득으로 이어질 수 있는 구조다. 본 검증에서는 테스트 목적으로 사용했으나, 프로덕션에서는 Kaniko와 같은 daemonless 빌드 도구 또는 격리된 전용 빌드 agent 구성이 필요하다.
-- TLS 검증: ArgoCD 접근 시 self-signed 인증서로 인해 `--insecure` 옵션을 사용했다. 프로덕션 환경에서는 신뢰할 수 있는 인증서 발급이 필요하다.
+- 초기 자격 증명 교체: ArgoCD, Jenkins 모두 설치 시 임의 생성된 초기 admin 비밀번호를 사용. CSAP/ISMS-P의 기본 계정·비밀번호 관리 통제 항목과 직결되는 지점이며, 프로덕션 환경에서는 최초 로그인 직후 즉시 교체가 필요.
+- PAT 권한 최소화: Classic PAT는 repo 단위 권한 제한이 불가능해 계정 전체 패키지에 접근 가능하며, 유출 시 영향 범위가 넓으므로 만료 기간을 짧게 설정하거나 사용 종료 즉시 폐기하는 것이 적절하다고 판단.
+- DooD(Docker-outside-of-Docker) 구성의 한계: 호스트 소켓을 컨테이너에 마운트하는 방식은 해당 컨테이너가 침해될 경우 호스트 수준 권한 획득으로 이어질 수 있는 구조. 본 검증에서는 테스트 목적으로 사용했으나, 프로덕션에서는 Kaniko와 같은 daemonless 빌드 도구 또는 격리된 전용 빌드 agent 구성이 필요.
+- TLS 검증: ArgoCD 접근 시 self-signed 인증서로 인해 `--insecure` 옵션을 사용했으며, 프로덕션 환경에서는 신뢰할 수 있는 인증서 발급이 필요.
 
----
 ### 8. 범위와 한계
-- Deployment에 readiness/liveness probe를 설정하지 않았다. 본 검증에서 재현한 `ImagePullBackOff` 시나리오는 Kubernetes의 rolling update 기본 동작으로 방어되었으나, 애플리케이션 자체가 비정상 기동되는 경우(헬스체크 부재 시 발생 가능한 장애)는 검증 범위에 포함되지 않는다.
-- Jenkins는 CI(빌드/푸시) 단계까지만 검증했으며, CD와는 통합하지 않았다.
-- Jenkins의 컨테이너 빌드 환경은 Controller 내부 직접 실행(DooD) 방식으로 구성했다. Alpine 기반 이미지를 사용하는 agent 분리 구성을 시도한 결과 durable task 실행 방식과의 호환성 문제를 확인했으며, 이를 근거로 DooD 방식을 최종 구성으로 채택했다.
+- Deployment에 readiness/liveness probe를 설정하지 않음. 본 검증에서 재현한 `ImagePullBackOff` 시나리오는 Kubernetes의 rolling update 기본 동작으로 방어되었으나, 애플리케이션 자체가 비정상 기동되는 경우(헬스체크 부재 시 발생 가능한 장애)는 검증 범위에 포함되지 않음.
+- Jenkins의 컨테이너 빌드 환경은 Controller 내부 직접 실행(DooD) 방식으로 구성했다. Alpine 기반 이미지를 사용하는 agent 분리 구성을 시도한 결과 durable task 실행 방식과의 호환성 문제를 확인했으며, 이를 근거로 DooD 방식을 최종 구성으로 채택.
