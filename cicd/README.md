@@ -1,26 +1,24 @@
 ### CI/CD Pipeline: GitOps 기반 배포 파이프라인 검증
 
 ### 1. 개요
+GitHub Actions(CI) → GitHub Container Registry(GHCR) → ArgoCD(CD) → kubernetes로 이어지는 Pull 기반 GitOps 파이프라인을 검증한 과정 
+⇒ CI 단계에 Jenkins를 병행 구성하여, 관리형 CI(GitHub Actions)와 자체 호스팅 CI(Jenkins)의 구성을 비교
 
-본 문서는 GitHub Actions(CI) → GitHub Container Registry(GHCR) → ArgoCD(CD) → k3s로 이어지는 Pull 기반 GitOps 파이프라인을 직접 구축하고 검증한 기록이다. 아울러 CI 단계에서 Jenkins를 병행 구성하여, 관리형 CI(GitHub Actions)와 자체 호스팅 CI(Jenkins)의 실제 구성 경험을 비교했다.
+1. Pull 기반 GitOps 구조가 왜 Push 기반 배포보다 보안상 우위에 있는지에 대한 실제 실패·복구 과정을 통해 검증
+2. 클라우드 보안/컴플라이언스(CSAP, ISMS-P, PCI-DSS) 실무 경험을 CI/CD 파이프라인 설계에 적용했을 때 어떤 지점을 점검해야 하는지 확인 --> 현재까지 업무 기준으로는 CSP 서비스를 사용하여 파이프라인 구축.
 
-핵심 목적은 두 가지다.
-
-1. **Pull 기반 GitOps 구조가 왜 Push 기반 배포보다 보안상 우위에 있는지**를 이론이 아니라 실제 실패·복구 과정을 통해 검증한다.
-2. 클라우드 보안/컴플라이언스(CSAP, ISMS-P, PCI-DSS) 실무 경험을 CI/CD 파이프라인 설계에 적용했을 때 어떤 지점을 점검해야 하는지 확인한다.
-
-테스트 환경: NCP 서버(Rocky Linux 9.8, 4vCPU/7.5GB) 위 k3s(단일 노드, control-plane/worker 겸용), 컨테이너 엔진은 Podman.
+[테스트 환경] 
+• NCP 서버(Rocky Linux 9.8, 4vCPU/7.5GB)
 
 ---
 ### 2. 아키텍처
-
 ```mermaid
 flowchart LR
     Dev[Developer] -->|git push| Repo[GitHub Repository]
     Repo -->|push event trigger| GHA[GitHub Actions]
     GHA -->|build & push image| GHCR[(GHCR)]
     Repo -->|manifest 변경 감지| Argo[ArgoCD]
-    Argo -->|pull & sync| K3s[k3s Cluster]
+    Argo -->|pull & sync| K8S[Cluster]
     K3s -->|image pull| GHCR
 ```
 
@@ -30,12 +28,17 @@ flowchart LR
     Repo2 -->|Jenkinsfile 감지| Jenkins[Jenkins Controller]
     Jenkins -->|build & push image| GHCR2[(GHCR)]
 ```
+Jenkins는 CI(빌드/푸시) 역할만 검증했고, 실제 배포(CD)는 GitHub Actions와 연결된 ArgoCD 파이프라인 하나로만 수행. 
 
-두 파이프라인은 의도적으로 분리했다. Jenkins는 CI(빌드/푸시) 역할만 검증했고, 실제 배포(CD)는 GitHub Actions와 연결된 ArgoCD 파이프라인 하나로만 수행했다. Jenkins가 만든 이미지가 k3s에 배포된 적은 없다.
+[Image Registry]
+![alt text](image.png)
+• Docker Hub
+• GHCR (GitHub Container Registry)
+• AWS ECR
+• NCP Container Registry
 
 ---
 ### 3. 설계 결정: 왜 Pull 기반 CD(ArgoCD)인가
-
 Push 기반 CD(예: Jenkins/GHA가 파이프라인 내에서 `kubectl apply`를 직접 실행하는 방식)는 CI 도구가 클러스터 접근 자격 증명(kubeconfig)을 보유해야 한다. 이는 CI 도구가 침해당했을 때 클러스터 전체가 노출되는 경로가 된다.
 
 ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장소를 주기적으로 폴링하며, 외부로 클러스터 자격 증명을 노출하지 않는다. Git 커밋이 유일한 배포 트리거이자 유일한 진실 공급원(source of truth)이 되므로, 배포 이력이 곧 Git 커밋 이력과 일치해 감사 추적(audit trail) 관점에서도 유리하다.
