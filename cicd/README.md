@@ -31,7 +31,22 @@ flowchart LR
 Jenkins는 CI(빌드/푸시) 역할만 검증했고, 실제 배포(CD)는 GitHub Actions와 연결된 ArgoCD 파이프라인 하나로만 수행. 
 
 [Image Registry]
-![alt text](image.png)
+```mermaid
+flowchart LR
+    User((Developer)) -->|Commit Code| SourceRepo[Source Repo]
+    SourceRepo -->|Source Repo| CICD[CI/CD Pipeline]
+    CICD -->|CICD Pipeline| Registry[(Container Registry)]
+
+    CICD -->|Update Values| GitOpsRepo[GitOps Repo]
+    GitOpsRepo <-->|Webhook Sync / Poll| ArgoCD[ArgoCD]
+
+    ArgoCD -.->|deploy| Dev[(DEV Cluster)]
+    ArgoCD -.->|deploy| UAT[(UAT Cluster)]
+    ArgoCD -.->|deploy| Release[(Release Cluster)]
+```
+
+*이미지 출처: [gspann.com - Continuous Delivery for Kubernetes with GitOps and Argo CD](https://www.gspann.com/resources/blogs/continuous-delivery-for-kubernetes-with-gitops-and-argo-cd/) 구조를 참고해 재구성*
+
 • Docker Hub
 • GHCR (GitHub Container Registry)
 • AWS ECR
