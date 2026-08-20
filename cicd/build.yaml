@@ -1,4 +1,5 @@
 # Github Actions workflow to build and push Docker image to GitHub Container Registry (GHCR)
+# test path: jaeylim-test-repo/.github/workflows/build.yaml
 name: Build and Push to GHCR
 
 on:
