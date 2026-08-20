@@ -40,9 +40,7 @@ flowchart LR
     CICD -->|Update Values| GitOpsRepo[GitOps Repo]
     GitOpsRepo <-->|Webhook Sync / Poll| ArgoCD[ArgoCD]
 
-    ArgoCD -.->|deploy| Dev[(DEV Cluster)]
-    ArgoCD -.->|deploy| UAT[(UAT Cluster)]
-    ArgoCD -.->|deploy| Release[(Release Cluster)]
+    ArgoCD -.->|deploy| [(DEV Cluster)]
 ```
 
 *이미지 출처: [gspann.com - Continuous Delivery for Kubernetes with GitOps and Argo CD](https://www.gspann.com/resources/blogs/continuous-delivery-for-kubernetes-with-gitops-and-argo-cd/) 구조를 참고해 재구성*
