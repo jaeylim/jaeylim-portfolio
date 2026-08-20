@@ -67,14 +67,14 @@ ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장�
 | 4 | 이미지 버전 변경 시 자동 배포 및 롤백 시나리오 검증 | 완료 |
 
 ---
-### 5. 트러블슈팅 기록
-실제 구성 과정에서 발생한 문제와 원인, 해결을 기록한다. 재현 가능한 명령/에러만 남겼다.
+### 5. 트러블슈팅
+실제 구성 과정에서 발생한 문제, 원인, 해결 기록
 
 | # | 증상 | 원인 | 해결 |
 |---|---|---|---|
 | 1 | Fine-grained PAT로 GHCR push 시도 시 Account 권한 목록에 Packages 항목 자체가 없음 | Fine-grained token은 GHCR(Packages) 권한 자체를 지원하지 않음 | Classic PAT(`write:packages`, `read:packages`)로 전환 |
 | 2 | `git push` 시 `refusing to allow a Personal Access Token to create or update workflow` 에러 | `.github/workflows/` 파일 변경에는 별도 `workflow` scope 필요 | PAT scope에 `workflow` 추가 |
-| 3 | k3s 배포 시 `401 Unauthorized` → `ImagePullBackOff` | Private GHCR 이미지 pull에 클러스터 인증 정보(imagePullSecrets) 미설정 | `kubectl create secret docker-registry`로 GHCR 인증 secret 생성 후 Deployment에 연결. push 인증(repo secret)과 pull 인증(k8s secret)은 별개 경로임을 확인 |
+| 3 | k8s 배포 시 `401 Unauthorized` → `ImagePullBackOff` | Private GHCR 이미지 pull에 클러스터 인증 정보(imagePullSecrets) 미설정 | `kubectl create secret docker-registry`로 GHCR 인증 secret 생성 후 Deployment에 연결. push 인증(repo secret)과 pull 인증(k8s secret)은 별개 경로임을 확인 |
 | 4 | 존재하지 않는 이미지 태그로 배포 시 `argocd app rollback` 실행이 `FailedPrecondition`으로 거부됨 | Auto-sync 활성화 상태에서는 수동 rollback이 Git 상태와 충돌하므로 ArgoCD가 이를 차단 | `git revert`로 Git 상태 자체를 되돌리고 ArgoCD가 이를 재동기화하도록 유도. Kubernetes Deployment의 rolling update 특성상 신규 파드 pull 실패 중에도 기존 파드는 유지되어 서비스 다운타임은 발생하지 않음을 확인 |
 | 5 | Jenkins 컨테이너 내 `docker build` 실행 시 `docker: not found` | Jenkins 공식 이미지에는 Docker CLI가 포함되어 있지 않음 | 컨테이너 내부에 Docker CLI 설치. (프로덕션에서는 CLI가 사전 포함된 전용 agent 이미지 구성이 적절함) |
 | 6 | Docker CLI 설치 후 `permission denied ... docker.sock` | 컨테이너 실행 사용자(jenkins)가 마운트된 Podman 소켓 접근 권한 없음 | `chmod 666`으로 임시 완화. 이는 최소 권한 원칙에 반하므로, 프로덕션에서는 그룹 기반 권한 부여가 필요함을 확인 |
@@ -83,7 +83,6 @@ ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장�
 
 ---
 ### 6. CI 도구 비교: GitHub Actions vs Jenkins
-
 | 항목 | GitHub Actions | Jenkins |
 |---|---|---|
 | 운영 방식 | GitHub 관리형, 별도 인프라 불필요 | 자체 호스팅, 서버/컨테이너 직접 관리 필요 |
@@ -97,16 +96,13 @@ ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장�
 
 ---
 ### 7. 보안/컴플라이언스 관점 점검 사항
-
-- **초기 자격 증명 교체**: ArgoCD, Jenkins 모두 설치 시 임의 생성된 초기 admin 비밀번호를 사용한다. CSAP/ISMS-P의 기본 계정·비밀번호 관리 통제 항목과 직결되는 지점이며, 프로덕션 환경에서는 최초 로그인 직후 즉시 교체가 필요하다.
-- **PAT 권한 최소화**: Classic PAT는 repo 단위 권한 제한이 불가능해 계정 전체 패키지에 접근 가능하다. 유출 시 영향 범위가 넓으므로 만료 기간을 짧게 설정하고, 사용 종료 즉시 폐기하는 것이 적절하다.
-- **DooD(Docker-outside-of-Docker) 구성의 한계**: 호스트 소켓을 컨테이너에 마운트하는 방식은 해당 컨테이너가 침해될 경우 호스트 수준 권한 획득으로 이어질 수 있는 구조다. 본 검증에서는 테스트 목적으로 사용했으나, 프로덕션에서는 Kaniko와 같은 daemonless 빌드 도구 또는 격리된 전용 빌드 agent 구성이 필요하다.
-- **TLS 검증**: ArgoCD 접근 시 self-signed 인증서로 인해 `--insecure` 옵션을 사용했다. 프로덕션 환경에서는 신뢰할 수 있는 인증서 발급이 필요하다.
+- 초기 자격 증명 교체: ArgoCD, Jenkins 모두 설치 시 임의 생성된 초기 admin 비밀번호를 사용한다. CSAP/ISMS-P의 기본 계정·비밀번호 관리 통제 항목과 직결되는 지점이며, 프로덕션 환경에서는 최초 로그인 직후 즉시 교체가 필요하다.
+- PAT 권한 최소화: Classic PAT는 repo 단위 권한 제한이 불가능해 계정 전체 패키지에 접근 가능하다. 유출 시 영향 범위가 넓으므로 만료 기간을 짧게 설정하고, 사용 종료 즉시 폐기하는 것이 적절하다.
+- DooD(Docker-outside-of-Docker) 구성의 한계: 호스트 소켓을 컨테이너에 마운트하는 방식은 해당 컨테이너가 침해될 경우 호스트 수준 권한 획득으로 이어질 수 있는 구조다. 본 검증에서는 테스트 목적으로 사용했으나, 프로덕션에서는 Kaniko와 같은 daemonless 빌드 도구 또는 격리된 전용 빌드 agent 구성이 필요하다.
+- TLS 검증: ArgoCD 접근 시 self-signed 인증서로 인해 `--insecure` 옵션을 사용했다. 프로덕션 환경에서는 신뢰할 수 있는 인증서 발급이 필요하다.
 
 ---
 ### 8. 범위와 한계
-
-- 단일 노드 k3s 테스트 클러스터 기준으로 검증했으며, 멀티 노드/프로덕션 규모의 부하·장애 시나리오는 다루지 않았다.
 - Deployment에 readiness/liveness probe를 설정하지 않았다. 본 검증에서 재현한 `ImagePullBackOff` 시나리오는 Kubernetes의 rolling update 기본 동작으로 방어되었으나, 애플리케이션 자체가 비정상 기동되는 경우(헬스체크 부재 시 발생 가능한 장애)는 검증 범위에 포함되지 않는다.
 - Jenkins는 CI(빌드/푸시) 단계까지만 검증했으며, CD와는 통합하지 않았다.
 - Jenkins의 컨테이너 빌드 환경은 Controller 내부 직접 실행(DooD) 방식으로 구성했다. Alpine 기반 이미지를 사용하는 agent 분리 구성을 시도한 결과 durable task 실행 방식과의 호환성 문제를 확인했으며, 이를 근거로 DooD 방식을 최종 구성으로 채택했다.
