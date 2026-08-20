@@ -51,27 +51,23 @@ flowchart LR
 • NCP Container Registry\
 
 ---
-### 3. 설계 결정: 왜 Pull 기반 CD(ArgoCD)인가
-Push 기반 CD(예: Jenkins/GHA가 파이프라인 내에서 `kubectl apply`를 직접 실행하는 방식)는 CI 도구가 클러스터 접근 자격 증명(kubeconfig)을 보유해야 한다. 이는 CI 도구가 침해당했을 때 클러스터 전체가 노출되는 경로가 된다.
+### 3. Pull 기반 CD(ArgoCD)
+Push 기반 CD(예: Jenkins/GHA가 파이프라인 내에서 `kubectl apply`를 직접 실행하는 방식)는 CI 도구가 클러스터 접근 자격 증명(kubeconfig)을 보유해야하기 때문에 CI 도구가 침해당했을 때 클러스터 전체가 노출되는 경로.
 
-ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장소를 주기적으로 폴링하며, 외부로 클러스터 자격 증명을 노출하지 않는다. Git 커밋이 유일한 배포 트리거이자 유일한 진실 공급원(source of truth)이 되므로, 배포 이력이 곧 Git 커밋 이력과 일치해 감사 추적(audit trail) 관점에서도 유리하다.
-
-이 설계 판단은 4번 트러블슈팅 항목(Auto-sync 환경에서의 롤백 제약)에서 실제로 검증되었다.
+ArgoCD 같은 Pull 기반 GitOps 도구는 클러스터 내부에서 Git 저장소를 주기적으로 폴링하며, 외부로 클러스터 자격 증명을 노출하지 않음. Git 커밋이 유일한 배포 트리거이자 유일한 공급원(source of truth)이 되므로, 배포 이력이 곧 Git 커밋 이력과 일치해 감사 추적(audit trail) 관점에서도 유리하다고 판단.
 
 ---
 ### 4. 구현 및 검증 절차
-
 | Phase | 내용 | 결과 |
 |---|---|---|
-| 0 | k3s 설치, 사전 환경 점검(firewalld/SELinux) | 완료 |
+| 0 | k8s 설치, 사전 환경 점검(firewalld/SELinux) | 완료 |
 | 1 | GitHub Actions로 Dockerfile 빌드 → GHCR push | 완료 |
-| 2 | k3s에서 GHCR private 이미지 pull 검증 (imagePullSecrets) | 완료 |
+| 2 | k8s에서 GHCR private 이미지 pull 검증 (imagePullSecrets) | 완료 |
 | 3 | ArgoCD 설치 및 Application 등록, 자동 동기화 구성 | 완료 |
 | 4 | 이미지 버전 변경 시 자동 배포 및 롤백 시나리오 검증 | 완료 |
 
 ---
 ### 5. 트러블슈팅 기록
-
 실제 구성 과정에서 발생한 문제와 원인, 해결을 기록한다. 재현 가능한 명령/에러만 남겼다.
 
 | # | 증상 | 원인 | 해결 |
