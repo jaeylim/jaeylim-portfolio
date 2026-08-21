@@ -18,7 +18,7 @@ flowchart LR
     GHA -->|build & push image| GHCR[(GHCR)]
     Repo -->|manifest 변경 감지| Argo[ArgoCD]
     Argo -->|pull & sync| K8S[Cluster]
-    K3s -->|image pull| GHCR
+    K8s -->|image pull| GHCR
 ```
 
 ```mermaid
