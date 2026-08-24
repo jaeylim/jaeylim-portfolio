@@ -1,0 +1,135 @@
+{
+  "Resources": {
+    "PPPUBRouteTable": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::RouteTable",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "VpcId": {
+          "Fn::ImportValue": "PP-VPC-ID"
+        },
+        "Tags": [
+          {
+            "Value": "pp-public",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRIRouteTable": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::RouteTable",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "VpcId": {
+          "Fn::ImportValue": "PP-VPC-ID"
+        },
+        "Tags": [
+          {
+            "Value": "pp-private",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PublicIGWRoute": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Route",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PPPUBRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Fn::ImportValue": "PP-igw-ID"
+        },
+        "VpcEndpointId": {
+          "Fn::ImportValue": "PP-igw-ID"
+        }
+      }
+    },
+    "PublicDefaultRoute": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Route",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PPPUBRouteTable"
+        },
+        "DestinationCidrBlock": "10.2.0.0/16",
+        "GatewayId": "local",
+        "VpcEndpointId": "local"
+      }
+    },
+    "PrivateNATRoute": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Route",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "NatGatewayId": {
+          "Fn::ImportValue": "PP-Nat-ID"
+        },
+        "RouteTableId": {
+          "Ref": "PPPRIRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0"
+      }
+    },
+    "PrivateTGWRoute1": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Route",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "TransitGatewayId": {
+          "Fn::ImportValue": "Konfort-tgw"
+        },
+        "RouteTableId": {
+          "Ref": "PPPRIRouteTable"
+        },
+        "DestinationCidrBlock": "10.0.2.0/24"
+      }
+    },
+    "PrivateTGWRoute2": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Route",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "TransitGatewayId": {
+          "Fn::ImportValue": "Konfort-tgw"
+        },
+        "RouteTableId": {
+          "Ref": "PPPRIRouteTable"
+        },
+        "DestinationCidrBlock": "10.1.2.0/24"
+      }
+    },
+    "PrivateTGWRoute3": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Route",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "TransitGatewayId": {
+          "Fn::ImportValue": "Konfort-tgw"
+        },
+        "RouteTableId": {
+          "Ref": "PPPRIRouteTable"
+        },
+        "DestinationCidrBlock": "10.1.3.0/24"
+      }
+    },
+    "PrivateDefaultRoute": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Route",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PPPRIRouteTable"
+        },
+        "DestinationCidrBlock": "10.2.0.0/16",
+        "GatewayId": "local",
+        "VpcEndpointId": "local"
+      }
+    }
+  }
+}

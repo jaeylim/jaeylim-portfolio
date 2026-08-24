@@ -1,0 +1,449 @@
+{
+  "Metadata": {
+    "AWSToolsMetrics": {
+      "IaC_Generator": "arn:aws:cloudformation:ap-northeast-2:216989134533:generatedTemplate/b55a432c-a622-4dc5-950b-e462d4005682"
+    }
+  },
+  "Resources": {
+    "PPVPC": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::VPC",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "CidrBlock": "10.2.0.0/16",
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "EnableDnsHostnames": false,
+        "Tags": [
+          {
+            "Value": "pp-vpc",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPUBSubnet2A": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az1",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.0.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-pub1-subnet-2a",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPUBSubnet2C": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az3",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.1.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-pub2-subnet-2c",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRIWEBSubnet2A": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az1",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.2.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-pri-web1-subnet-2a",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRIWEBSubnet2C": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az3",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.3.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-pri-web2-subnet-2c",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRIWASSubnet2A": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az1",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.4.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-pri-was1-subnet-2a",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRIWASSubnet2C": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az3",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.5.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-pri-was2-subnet-2c",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRIDBSubnet2A": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az1",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.6.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-pri-db1-subnet-2a",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRIDBSubnet2C": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az3",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.7.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-pri-db2-subnet-2c",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRITSSubnet2A": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az1",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.8.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-ts1-subnet-2a",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRITSSubnet2C": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "MapPublicIpOnLaunch": false,
+        "EnableDns64": false,
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityZoneId": "apne2-az3",
+        "PrivateDnsNameOptionsOnLaunch": {
+          "EnableResourceNameDnsARecord": false,
+          "HostnameType": "ip-name",
+          "EnableResourceNameDnsAAAARecord": false
+        },
+        "CidrBlock": "10.2.9.0/24",
+        "Ipv6Native": false,
+        "Tags": [
+          {
+            "Value": "pp-ts2-subnet-2c",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPInternetGateway": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::InternetGateway",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "Tags": [
+          {
+            "Value": "pp-igw",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPNatGateway": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::NatGateway",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "PrivateIpAddress": "10.2.0.121",
+        "ConnectivityType": "public",
+        "VpcId": {
+          "Ref": "PPVPC"
+        },
+        "AvailabilityMode": "zonal",
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "PPNATEIP",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "PPPUBSubnet2A"
+        },
+        "Tags": [
+          {
+            "Value": "pp-nat",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPNATEIP": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::EIP",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "PublicIpv4Pool": "amazon",
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Value": "pp-nat-ip",
+            "Key": "Name"
+          }
+        ],
+        "NetworkBorderGroup": "ap-northeast-2"
+      }
+    }
+  },
+  "Outputs": {
+    "PPVPC": {
+      "Value": {
+        "Ref": "PPVPC"
+      },
+      "Export": {
+        "Name": "PP-VPC-ID"
+      }
+    },
+    "PPPUBSubnet2A": {
+      "Value": {
+        "Ref": "PPPUBSubnet2A"
+      },
+      "Export": {
+        "Name": "PP-Pub-Subnet-2A-ID"
+      }
+    },
+    "PPPUBSubnet2C": {
+      "Value": {
+        "Ref": "PPPUBSubnet2C"
+      },
+      "Export": {
+        "Name": "PP-Pub-Subnet-2C-ID"
+      }
+    },
+    "PPPRIWEBSubnet2A": {
+      "Value": {
+        "Ref": "PPPRIWEBSubnet2A"
+      },
+      "Export": {
+        "Name": "PP-Pri-Web-Subnet-2A-ID"
+      }
+    },
+    "PPPRIWEBSubnet2C": {
+      "Value": {
+        "Ref": "PPPRIWEBSubnet2C"
+      },
+      "Export": {
+        "Name": "PP-Pri-Web-Subnet-2C-ID"
+      }
+    },
+    "PPPRIWASSubnet2A": {
+      "Value": {
+        "Ref": "PPPRIWASSubnet2A"
+      },
+      "Export": {
+        "Name": "PP-Pri-Was-Subnet-2A-ID"
+      }
+    },
+    "PPPRIWASSubnet2C": {
+      "Value": {
+        "Ref": "PPPRIWASSubnet2C"
+      },
+      "Export": {
+        "Name": "PP-Pri-Was-Subnet-2C-ID"
+      }
+    },
+    "PPPRIDBSubnet2A": {
+      "Value": {
+        "Ref": "PPPRIDBSubnet2A"
+      },
+      "Export": {
+        "Name": "PP-Pri-DB-Subnet-2A-ID"
+      }
+    },
+    "PPPRIDBSubnet2C": {
+      "Value": {
+        "Ref": "PPPRIDBSubnet2C"
+      },
+      "Export": {
+        "Name": "PP-Pri-DB-Subnet-2C-ID"
+      }
+    },
+    "PPPRITSSubnet2A": {
+      "Value": {
+        "Ref": "PPPRITSSubnet2A"
+      },
+      "Export": {
+        "Name": "PP-Pri-ts-Subnet-2A-ID"
+      }
+    },
+    "PPPRITSSubnet2C": {
+      "Value": {
+        "Ref": "PPPRITSSubnet2C"
+      },
+      "Export": {
+        "Name": "PP-Pri-ts-Subnet-2C-ID"
+      }
+    },
+    "PPInternetGateway": {
+      "Value": {
+        "Ref": "PPInternetGateway"
+      },
+      "Export": {
+        "Name": "PP-igw-ID"
+      }
+    },
+    "PPNatGateway": {
+      "Value": {
+        "Ref": "PPNatGateway"
+      },
+      "Export": {
+        "Name": "PP-Nat-ID"
+      }
+    }
+  }
+}

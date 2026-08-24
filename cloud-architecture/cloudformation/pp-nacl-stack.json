@@ -1,0 +1,52 @@
+{
+  "Resources": {
+    "PPPUBNetworkAcl": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::NetworkAcl",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "VpcId": {
+          "Fn::ImportValue": "PP-VPC-ID"
+        },
+        "Tags": [
+          {
+            "Value": "pp-pub-nacl",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPPRINetworkAcl": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::NetworkAcl",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "VpcId": {
+          "Fn::ImportValue": "PP-VPC-ID"
+        },
+        "Tags": [
+          {
+            "Value": "pp-pri-nacl",
+            "Key": "Name"
+          }
+        ]
+      }
+    },
+    "PPTSNetworkAcl": {
+      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::NetworkAcl",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "VpcId": {
+          "Fn::ImportValue": "PP-VPC-ID"
+        },
+        "Tags": [
+          {
+            "Value": "pp-ts-nacl",
+            "Key": "Name"
+          }
+        ]
+      }
+    }
+  }
+}
