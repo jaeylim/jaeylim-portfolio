@@ -1,7 +1,7 @@
 pipeline {
-    //1. DooD (Controller 내부 직접 실행)
+    //1. DooD (호스트 도커 소켓 공유)
     agent any 
-    //2. DinD (Agent 분리 시도 -- 별도 컨테이너로 호스트 소켓 공유)
+    //2. DinD (컨테이너 안에서 새로운 도커 실행, jenkins 에이전트마다 별도의 도커 데몬 띄워야함)
     //agent {
     //docker {
     //    image 'docker:24-cli'
