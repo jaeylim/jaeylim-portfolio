@@ -1,0 +1,5 @@
+# 실제 값 채운 뒤 파일명을 terraform.tfvars 로 바꿔서 사용
+# terraform.tfvars 는 .gitignore 에 반드시 포함시킬 것 (민감정보 커밋 금지)
+
+db_password   = "changeme-strong-password"
+key_pair_name = null # 기존 EC2 키페어 이름, 없으면 null 유지
