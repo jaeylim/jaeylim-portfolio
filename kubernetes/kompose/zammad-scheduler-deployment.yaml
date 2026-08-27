@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: zammad-scheduler
+  name: zammad-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: zammad-scheduler
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        io.kompose.service: zammad-scheduler
+    spec:
+      containers:
+        - args:
+            - zammad-scheduler
+          env:
+            - name: BACKUP_DIR
+              value: /var/tmp/zammad
+            - name: BACKUP_ON_START
+              value: "true"
+            - name: BACKUP_TIME
+              value: "03:00"
+            - name: HOLD_DAYS
+              value: "10"
+            - name: MEMCACHE_SERVERS
+              value: zammad-memcached:11211
+            - name: NGINX_SERVER_SCHEME
+              value: https
+            - name: POSTGRESQL_DB
+              value: zammad_production
+            - name: POSTGRESQL_HOST
+              value: zammad-postgresql
+            - name: POSTGRESQL_OPTIONS
+              value: ?pool=50
+            - name: POSTGRESQL_PASS
+              value: zammad
+            - name: POSTGRESQL_PORT
+              value: "5432"
+            - name: POSTGRESQL_USER
+              value: zammad
+            - name: REDIS_URL
+              value: redis://zammad-redis:6379
+            - name: TZ
+              value: Europe/Berlin
+          image: ghcr.io/zammad/zammad:7.0.1-0053
+          name: zammad-scheduler
+          volumeMounts:
+            - mountPath: /var/tmp/zammad
+              name: zammad-backup
+              readOnly: true
+            - mountPath: /opt/zammad/storage
+              name: zammad-storage
+      restartPolicy: Always
+      volumes:
+        - name: zammad-backup
+          persistentVolumeClaim:
+            claimName: zammad-backup
+            readOnly: true
+        - name: zammad-storage
+          persistentVolumeClaim:
+            claimName: zammad-storage

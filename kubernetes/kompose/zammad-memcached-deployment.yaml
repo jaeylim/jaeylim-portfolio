@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: zammad-memcached
+  name: zammad-memcached
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: zammad-memcached
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        io.kompose.service: zammad-memcached
+    spec:
+      containers:
+        - args:
+            - memcached
+            - -m
+            - 256M
+          image: memcached:1.6.42-alpine
+          livenessProbe:
+            exec:
+              command:
+                - nc
+                - -z
+                - 127.0.0.1
+                - "11211"
+            failureThreshold: 5
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: zammad-memcached
+      restartPolicy: Always

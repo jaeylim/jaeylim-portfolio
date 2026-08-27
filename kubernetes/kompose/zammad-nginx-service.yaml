@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: zammad-nginx
+  name: zammad-nginx
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+    - name: 8080-tcp
+      port: 8080
+      targetPort: 8080
+  selector:
+    io.kompose.service: zammad-nginx
