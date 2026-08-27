@@ -43,7 +43,6 @@ kompose는 compose 파일에 `ports`/`expose`가 정의된 서비스에만 k8s S
 ```
 zammad-backup, zammad-init, zammad-nginx, zammad-railsserver, zammad-scheduler, zammad-websocket
 ```
-
 이 중 railsserver/scheduler/websocket/nginx는 상시 실행되며 동시에 파일을 읽고 쓰므로
 ReadWriteMany(RWX)가 필요. NFS 서버 + `nfs-subdir-external-provisioner` 조합 등 별도 StorageClass 구성이 필요. 반면 `postgresql-data`/`redis-data`/`elasticsearch-data`는 각각 단일 서비스만 사용하므로 RWO로 충분하다고 판단됨.
 
