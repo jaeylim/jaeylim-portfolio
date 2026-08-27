@@ -52,3 +52,50 @@ ReadWriteMany(RWX)가 필요. NFS 서버 + `nfs-subdir-external-provisioner` 조
 
 ### 참고
 - 이 실습은 기존 운영 중인 Zammad 테스트 서버(Docker Compose)와 완전히 분리된 별도 네임스페이스/클러스터에서 진행하며, 기존 서버에는 영향을 주지 않음.
+
+### 추가 (k8s:secret)
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+kubectl version --client
+
+#### dry-run (base64)
+```bash
+kubectl create secret generic zammad-postgresql-secret \
+  --from-literal=POSTGRES_DB=zammad_production \
+  --from-literal=POSTGRES_USER=zammad \
+  --from-literal=POSTGRES_PASSWORD=zammad \
+  --from-literal=POSTGRESQL_HOST=zammad-postgresql \
+  --from-literal=POSTGRESQL_PORT=5432 \
+  --from-literal=POSTGRESQL_DB=zammad_production \
+  --from-literal=POSTGRESQL_USER=zammad \
+  --from-literal=POSTGRESQL_PASS=zammad \
+  --from-literal=POSTGRESQL_OPTIONS='?pool=50' \
+  --dry-run=client -o yaml > zammad-postgresql-secret.yaml
+```
+kompose가 만든 Deployment들(zammad-railsserver-deployment.yaml, zammad-scheduler-deployment.yaml, zammad-websocket-deployment.yaml, zammad-nginx-deployment.yaml, zammad-postgresql-deployment.yaml, zammad-backup-deployment.yaml, zammad-init-pod.yaml)를 열어보면 env: 안에 이런 식으로 평문이 있음.
+
+```yaml
+env:
+  - name: POSTGRESQL_HOST
+    value: zammad-postgresql
+  - name: POSTGRESQL_PASS
+    value: zammad
+  ...
+```
+
+이 항목들을 지우고 그 자리에 아래처럼 envFrom을 추가하면, Secret에 있는 키들이 전부 환경변수로 자동 주입할 수 있음:
+
+```yaml
+spec:
+  containers:
+    - name: zammad-railsserver
+      image: ghcr.io/zammad/zammad:7.0.1-0053
+      envFrom:
+        - secretRef:
+            name: zammad-postgresql-secret
+      env:
+        - name: TZ
+          value: Europe/Berlin
+        # postgres 관련 아닌 나머지 env는 그대로 유지  
+```
