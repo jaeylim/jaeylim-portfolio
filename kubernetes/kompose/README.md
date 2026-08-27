@@ -58,6 +58,7 @@ chmod +x kubectl
 sudo mv kubectl /usr/local/bin/
 kubectl version --client
 
+#### docker compose config 결과 확인
 #### dry-run (base64)
 ```bash
 kubectl create secret generic zammad-postgresql-secret \
@@ -71,6 +72,23 @@ kubectl create secret generic zammad-postgresql-secret \
   --from-literal=POSTGRESQL_PASS=zammad \
   --from-literal=POSTGRESQL_OPTIONS='?pool=50' \
   --dry-run=client -o yaml > zammad-postgresql-secret.yaml
+```
+```bash
+# postgreSQL secret 
+apiVersion: v1
+data:
+  POSTGRES_DB: emFtbWFkX3Byb2R1Y3Rpb24=
+  POSTGRES_PASSWORD: emFtbWFk
+  POSTGRES_USER: emFtbWFk
+  POSTGRESQL_DB: emFtbWFkX3Byb2R1Y3Rpb24=
+  POSTGRESQL_HOST: emFtbWFkLXBvc3RncmVzcWw=
+  POSTGRESQL_OPTIONS: P3Bvb2w9NTA=
+  POSTGRESQL_PASS: emFtbWFk
+  POSTGRESQL_PORT: NTQzMg==
+  POSTGRESQL_USER: emFtbWFk
+kind: Secret
+metadata:
+  name: zammad-postgresql-secret
 ```
 kompose가 만든 Deployment들(zammad-railsserver-deployment.yaml, zammad-scheduler-deployment.yaml, zammad-websocket-deployment.yaml, zammad-nginx-deployment.yaml, zammad-postgresql-deployment.yaml, zammad-backup-deployment.yaml, zammad-init-pod.yaml)를 열어보면 env: 안에 이런 식으로 평문이 있음.
 
