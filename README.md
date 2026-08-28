@@ -1,6 +1,4 @@
 🚨수정중입니다🚧
-
-#### AWS/NCP 클라우드 아키텍처 및 보안 컴플라이언스(PCI-DSS, CSAP, ISO27001) 실무 포트폴리오
 ---
 #### 🔗 [LinkedIn](https://www.linkedin.com/in/jaeyeon-lim-3382a61b7/) -- 프로필 바로가기
 #### 🔗 [Notion](https://equal-handball-d3b.notion.site/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?source=copy_link) -- AWS/NCP 서비스 POC 정리
