@@ -12,8 +12,8 @@
 - 🚀 GitOps CI/CD 파이프라인 구축
 - 📄 KEDA 오토스케일링 성능 분석 (한양대 우수논문상 · KCI 등재)
 - 🎓 CKA, NCP Expert 외 자격증 보유
----
 
+---
 #### 🔗 [LinkedIn](https://www.linkedin.com/in/jaeyeon-lim-3382a61b7/) -- 프로필 (영문)
 #### 🔗 [Notion](https://equal-handball-d3b.notion.site/Cloud-Services-CSP-d0b58b7c94954d3ca4f9869c93b827b3?source=copy_link) -- AWS/NCP 서비스 POC 정리
 ---
