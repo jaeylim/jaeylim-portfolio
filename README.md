@@ -19,16 +19,16 @@
 ---
 
 #### [cloud-architecture/](https://github.com/jaeylim/jaeylim-portfolio/tree/main/cloud-architecture)
-AWS/NCP 아키텍처 설계/구축 및 IaC(Terraform, Ansible)구성 기록
+AWS/NCP 아키텍처 설계/구축 및 IaC(CloudFormation, Terraform)기반 구성 기록
 
 #### [cicd/](https://github.com/jaeylim/jaeylim-portfolio/tree/main/cicd)
-Jenkins, ArgoCD, GitHub Actions 기반 배포 파이프라인 구성 기록
+Jenkins, ArgoCD, GitHub Actions 기반 GitOps 배포 파이프라인 구성 및 롤백 시나리오 검증 기록
 
 #### [kubernetes/](https://github.com/jaeylim/jaeylim-portfolio/tree/main/kubernetes)
-KEDA 오토스케일링 성능 분석(석사 논문, 한양대 우수논문상 수상·KCI 등재), Istio Ambient Mode, NKS 구성 및 장애 시나리오 검증 기록
+KEDA 오토스케일링 성능 분석(석사 논문, 한양대 우수논문상 수상·KCI 등재), Service Mesh(Istio Ambient Mode), Docker Compose → K8S 전환(Kompose) 마이그레이션 기록
 
 #### [security-compliance/](https://github.com/jaeylim/jaeylim-portfolio/tree/main/security-compliance)
-PCI-DSS, CSAP, ISO27001 기준 증적 수집 및 적용범위 조율 프로세스, GuardDuty/IAM/mTLS/CloudHSM/Config Rules 등 보안 구성 실무 기록
+PCI-DSS, CSAP, ISO27001 기준 증적 수집 및 적용범위 조율 프로세스, 취약점 진단 항목 조치(Ansible), GuardDuty/IAM/mTLS/CloudHSM/Config Rules 등 보안 구성 기록
 
 #### [tooling/](https://github.com/jaeylim/jaeylim-portfolio/tree/main/tooling)
 내부 티켓 시스템 검토·설계·배포 및 SaaS(M365, Entra ID) 협업 기록
