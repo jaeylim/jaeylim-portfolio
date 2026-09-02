@@ -8,8 +8,8 @@ Step 1: 엑셀 체크리스트 -> 구조화된 JSON
 import json
 import openpyxl
 
-SRC = "증적자료-체크용.xlsx"  # 실제 파일명으로 바꿔서 실행
-SHEET = "증적자료(기본)"
+SRC = "checklists.xlsx"  # 실제 파일명으로 바꿔서 실행
+SHEET = "checksheet"  # 실제 시트명으로 바꿔서 실행
 OUT = "checklist.json"
 
 
