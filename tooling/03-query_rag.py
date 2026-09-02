@@ -16,7 +16,7 @@ import sys
 import boto3
 import numpy as np
 
-REGION = "us-east-1"
+REGION = "ap-northeast-2"
 EMBED_MODEL_ID = "amazon.titan-embed-text-v2:0"
 GEN_MODEL_ID = "amazon.nova-lite-v1:0"
 TOP_K = 3

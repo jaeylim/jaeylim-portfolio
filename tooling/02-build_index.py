@@ -10,7 +10,7 @@ import json
 import boto3
 import numpy as np
 
-REGION = "us-east-1"  # 실제 사용 가능한 리전으로 변경
+REGION = "ap-northeast-2"  
 EMBED_MODEL_ID = "amazon.titan-embed-text-v2:0"
 
 bedrock = boto3.client("bedrock-runtime", region_name=REGION)
