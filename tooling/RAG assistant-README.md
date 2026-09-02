@@ -32,15 +32,11 @@ embeddings.npy + checklist_with_text.json
 ```bash
 pip install -r requirements.txt
 
-# 1. 체크리스트 파싱 (엑셀 파일명은 실제 파일명으로 맞출 것)
+### 1. 체크리스트 파싱 (엑셀 파일명은 실제 파일명으로 맞출 것)
 python 01-extract_checklist.py
 
 ```json
-//예시 파일을 기준으로 떨어진 json
-[root@jaeyeon-test rag]# ls
-1_extract_checklist.py  3_query_rag.py  checklists.xlsx
-2_build_index.py        checklist.json  requirements.txt
-[root@jaeyeon-test rag]# cat checklist.json
+# cat checklist.json
 [
   {
     "row": 3,
@@ -67,13 +63,27 @@ python 01-extract_checklist.py
     "note": "ex. 점검대상, 점검절차, 점검주기, "
   },```
 
-# 2. 임베딩 인덱스 생성 (Bedrock 호출, 회사 테스트 계정 자격증명 필요)
+### 2. 임베딩 인덱스 생성 (Bedrock 호출, 회사 테스트 계정 자격증명 필요)
 python 02-build_index.py
 
-# 3. 질의
-python 03-query_rag.py "네트워크 분리 관련해서 어떤 증적이 필요해?"
+```json
+# cat checklist_with_text.json
+[
+  {
+    "row": 3,
+    "category": "관리적 보호 조치",
+    "domain": null,
+    "control_item": "교육 시행 (2.3.2)",
+    "evidence_required": "연간 정보보호 교육계획 및 결과보고 자료",
+    "note": "실제 교육 진행 여부를 확인할 수 있는 증빙자료  ex. 교육ㅈ료, 현장사진, 참석자 명단 및 서명본, 수료증 등.",
+    "_chunk_text": "범주: 관리적 보호 조치\n분야: \n통제항목: 교육 시행 (2.3.2)\n필요 증적자료: 연간 정보보호 교육계획 및 결과보고 자료\n비고: 실제 교육 진행 여부를 확인할 수 있는 증빙자료  ex. 교육ㅈ료, 현장사진, 참석자 명단 및 서명본, 수료증 등."
+  },```
 
-### 이후 적용 범위
+### 3. 질의
+python 03-query_rag.py 
+- "네트워크 분리 관련해서 어떤 증적이 필요해?"
+
+### 이후 적용 가능 범위
 - 체크리스트 외 실제 증적 문서(정책서, 결과보고서)까지 색인 범위 확대
 - 여러 인증 기준(CSAP, ISMS-P, PCI-DSS) 통합 검색
 - 항목 수 증가 시 OpenSearch Serverless 기반 Bedrock Knowledge Base로 전환
