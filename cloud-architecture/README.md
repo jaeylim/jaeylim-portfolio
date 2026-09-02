@@ -13,4 +13,3 @@ AWS/NCP 환경에서 산업별 규제 요건에 맞춰 설계한 인프라 아�
 - 계층 분리: Public/Private Subnet을 역할(Web/WAS/DB)별로 분리하고, 인터넷 인바운드는 반드시 WAF/보안 계층을 경유하도록 강제
 - 중앙집중식 경유지를 통한 트래픽 통제: PCI-DSS 환경은 Security VPC를 통해서만 외부 접근을 허용하고, 공공기관 환경은 Transit VPC를 공통 검사 지점으로 분리해 IPS를 여러 워크로드 VPC가 재사용하도록 구성
 - 네트워크 격리: Transit Gateway/VPC Peering으로 VPC 간 연결을 명시적으로 관리하고, 키 관리(CloudHSM)나 검사(IPS) 같은 민감 영역은 별도 VPC로 분리해 직접 라우팅을 차단
-
