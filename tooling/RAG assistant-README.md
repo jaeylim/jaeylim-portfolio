@@ -33,13 +33,13 @@ embeddings.npy + checklist_with_text.json
 pip install -r requirements.txt
 
 # 1. 체크리스트 파싱 (엑셀 파일명은 실제 파일명으로 맞출 것)
-python 1_extract_checklist.py
+python 01-extract_checklist.py
 
 # 2. 임베딩 인덱스 생성 (Bedrock 호출, 회사 테스트 계정 자격증명 필요)
-python 2_build_index.py
+python 02-build_index.py
 
 # 3. 질의
-python 3_query_rag.py "네트워크 분리 관련해서 어떤 증적이 필요해?"
+python 03-query_rag.py "네트워크 분리 관련해서 어떤 증적이 필요해?"
 ```
 
 ### 이후 적용 범위
