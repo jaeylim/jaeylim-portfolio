@@ -14,7 +14,7 @@ APP TENANT ID:
 ### 2. Core Workflows 트리거 설정
 ### 2.1 트리거 목록
 (예시) 결재자 알림
-![alt text]("C:\Users\jaeyeonlim\Downloads\image-20260807-070640.png")
+!["C:\Users\jaeyeonlim\Downloads\image-20260807-070640.png"](image.png)
 
 - 결재자 알림
 - 담당자 알림(반려)
