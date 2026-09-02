@@ -1,4 +1,5 @@
-#### AWS/NCP 클라우드 아키텍처 및 보안 컴플라이언스 (PCI-DSS, CSAP, ISO27001) 실무 포트폴리오
+#### AWS/NCP 클라우드 아키텍처 및 보안 컴플라이언스 실무 포트폴리오
+AWS/NCP MSP 환경에서 클라우드 인프라를 구축·운영하며, PCI-DSS·CSAP·ISMS-P·ISO27001 감사 대응과 보안 아키텍처 설계를 병행해왔습니다. 이 포트폴리오는 그 실무 경험을 중심으로, 이를 뒷받침하는 GitOps 자동화와 최근 학습한 생성형 AI 활용 사례를 함께 포함합니다.
 ---
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat&logo=amazonaws&logoColor=white)
 ![NCP](https://img.shields.io/badge/NCP-03C75A?style=flat&logo=naver&logoColor=white)
@@ -7,9 +8,10 @@
 ![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=flat&logo=argo&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
 
-- ☁️ AWS/NCP 클라우드 인프라 설계 및 구축/운영 실무 (MSP)
 - 🔐 PCI-DSS · CSAP · ISMS-P · ISO27001 보안 컴플라이언스 대응
+- ☁️ AWS/NCP 클라우드 인프라 설계 및 구축/운영 실무 (MSP)
 - 🚀 GitOps CI/CD 파이프라인 구축
+🤖 Bedrock 기반 AI 도구 활용 (위협 탐지 트리아지, 컴플라이언스 체크리스트 RAG)
 - 📄 KEDA 오토스케일링 성능 분석 (한양대 우수논문상 · KCI 등재)
 - 🎓 CKA, NCP Expert 외 자격증 보유
 
