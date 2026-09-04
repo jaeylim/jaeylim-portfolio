@@ -11,7 +11,7 @@ AWS/NCP MSP 환경에서 클라우드 인프라를 구축·운영하며, PCI-DSS
 - 🔐 PCI-DSS · CSAP · ISMS-P · ISO27001 보안 컴플라이언스 대응
 - ☁️ AWS/NCP 클라우드 인프라 설계 및 구축/운영 실무 (MSP)
 - 🚀 GitOps CI/CD 파이프라인 구축
-🤖 Bedrock 기반 AI 도구 활용 (위협 탐지 트리아지, 컴플라이언스 체크리스트 RAG)
+- 🤖 Bedrock 기반 AI 도구 활용 (위협 탐지 트리아지, 컴플라이언스 체크리스트 RAG)
 - 📄 KEDA 오토스케일링 성능 분석 (한양대 우수논문상 · KCI 등재)
 - 🎓 CKA, NCP Expert 외 자격증 보유
 
