@@ -1,6 +1,7 @@
 #### AWS/NCP 클라우드 아키텍처 및 보안 컴플라이언스 실무 포트폴리오
 AWS/NCP MSP 환경에서 클라우드 인프라를 구축·운영하며, PCI-DSS·CSAP·ISMS-P·ISO27001 감사 대응과 보안 아키텍처 설계를 병행해왔습니다. 이 포트폴리오는 그 실무 경험을 중심으로, 이를 뒷받침하는 GitOps 자동화와 최근 학습한 생성형 AI 활용 사례를 함께 포함합니다.
 ---
+
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat&logo=amazonaws&logoColor=white)
 ![NCP](https://img.shields.io/badge/NCP-03C75A?style=flat&logo=naver&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat&logo=kubernetes&logoColor=white)
