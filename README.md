@@ -19,7 +19,7 @@ AWS/NCP MSP 환경에서 클라우드 인프라를 구축·운영하며, PCI-DSS
 - 🚀 GitOps CI/CD 파이프라인 구축
 - 🤖 Bedrock 기반 AI 도구 활용 (위협 탐지 트리아지, 컴플라이언스 체크리스트 RAG)
 - 📄 KEDA 오토스케일링 성능 분석 (한양대 우수논문상 · KCI 등재)
-- 🎓 CKA, NCP Expert 외 자격증 보유
+- 🎓 CKA, NCP Expert, NCP Security 외 자격증 보유
 
 ---
 #### 🔗 [LinkedIn](https://www.linkedin.com/in/jaeyeon-lim-3382a61b7/) -- 프로필 (영문)
