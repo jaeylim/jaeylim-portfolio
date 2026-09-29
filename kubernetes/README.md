@@ -18,7 +18,12 @@ NKS(Kubernetes v1.36) 환경에서 선언적 네트워크 정책(NetworkPolicy)�
 - Hubble UI 서비스 맵을 통해 허용·차단 플로우 시각화
 
 ### Admission Control (Kyverno)
-> 기존 설정값 수정중
+NKS(Kubernetes v1.36)에 Kyverno를 설치하고, 컨테이너 보안 기준을 정책 코드로 정의해 배포 단계에서 위반 워크로드를 차단:
+
+- privileged 컨테이너 금지, root 실행 금지(runAsNonRoot 필수), 허용 레지스트리 외 이미지 차단 정책 3종을 `Enforce` 모드로 적용
+- 위반 항목별 테스트 파드로 검증: 위반 파드 3종은 admission 단계에서 거부(정책명·필드 경로 포함 메시지 확인), 정상 파드만 생성
+- 공유 클러스터 환경을 고려해 정책 적용 범위를 테스트 네임스페이스로 한정, 조건부 앵커로 오탐 방지
+- 레거시 ClusterPolicy의 deprecation 및 CEL 기반 ValidatingPolicy 전환 흐름 확인
 
 ### KEDA 오토스케일링 성능 분석
 메시지 브로커 4종을 대상으로 KEDA 기반 오토스케일링 성능을 비교 분석한 한양대학교 석사 논문(우수논문상 수상, KCI 등재) 관련 코드:
