@@ -6,10 +6,14 @@
 - 자동 변환 시 누락·오류가 발생하는 항목(볼륨 마운트 경로, 초기화 순서 등) 식별 및 수정
 
 ### Service Mesh (Istio Ambient Mode)
-NCP Kubernetes Service(NKS) 클러스터에 Istio Ambient Mode를 설치하고, mTLS 강제 및 네임스페이스 간 트래픽 통제를 검증:
+NCP Kubernetes Service(NKS) 클러스터에 Istio Ambient Mode를 설치하고, mTLS 강제 및 네임스페이스 간 트래픽 통제를 검증
 
 ### 네트워크 정책 및 트래픽 가시성 (Cilium/Hubble)
-> 기존 설정값 수정중
+NKS(Kubernetes v1.36) 환경에서 선언적 네트워크 정책(NetworkPolicy)으로 네임스페이스 간 접근통제를 구현하고, Hubble로 허용·차단 트래픽을 관측해 통제 동작을 검증:
+
+- `client` / `backend` / `attacker` 네임스페이스 구성, backend 인바운드를 `client` 네임스페이스에서만 허용하는 화이트리스트 정책 적용 (명시 허용 외 트래픽은 기본 거부)
+- 검증 결과: client → backend `FORWARDED`, attacker → backend 연결 타임아웃 및 Hubble 로그 `Policy denied` / `DROPPED` 확인
+- NKS의 Cilium은 NCP 관리형(Helm 외부 배포)이라 `cilium hubble enable --ui` 적용 불가 → NCP 공식 가이드 기반으로 Hubble Relay/UI를 별도 배포해 서비스 맵에서 허용·차단 플로우 시각화
 
 ### Admission Control (Kyverno)
 > 기존 설정값 수정중
