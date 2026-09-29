@@ -22,7 +22,7 @@ Kyverno admission webhook으로 파드 생성 요청을 API 서버 단계에서 
 ### 설계 시 고려사항
 - **적용 범위 통제**: 공유 클러스터 환경이므로 정책을 `kyverno-test` 네임스페이스로 한정. 클러스터 전역 Enforce 적용 시 기존 워크로드 배포까지 차단될 수 있음
 - **오탐 방지**: 필드가 없으면 통과하는 조건부 앵커 `=()`와 필수 명시(앵커 없음)를 구분해 작성. 예) privileged는 미지정 시 기본값이 false이므로 `=(privileged)`로 "지정된 경우에만" 검사하고, runAsNonRoot는 명시를 강제
-- **fail-closed**: 웹훅이 `validate.kyverno.svc-fail`로 등록되어, Kyverno가 응답하지 않으면 요청을 거부하는 방향으로 동작. 보안상 안전한 기본값이나 Kyverno 장애가 배포 장애로 이어지는 트레이드오프가 있어, 시스템 네임스페이스(`kube-system`, `kyverno`)는 기본 제외됨
+- **fail-closed**: Kyverno admission webhook의 failurePolicy 기본값이 Fail이므로, Kyverno가 요청을 정상처리하지 못할 경우 API 요청을 거부. 보안상 안전한 기본값이지만 Kyverno 장애가 배포 장애로 이어질 수 있는 트레이드오프가 있기 때문에 시스템 네임스페이스(`kube-system`, `kyverno`)는 기본 제외됨.
 
 <details>
 <summary>정책 코드</summary>
@@ -171,5 +171,5 @@ restrict-image-registries        true        true         True    8h    Ready
 ### 확인된 사항
 - 정책 위반 시 차단 메시지에 위반 정책명과 필드 경로(`/spec/containers/0/...`)가 함께 기록되어, 배포자가 수정 지점을 즉시 파악 가능
 - `anyPattern`은 하위 패턴 중 하나만 충족하면 통과하며, 모두 실패한 경우 각 패턴의 실패 경로(`[0]`, `[1]`)가 개별 출력됨
-- Kyverno 1.19(Helm chart 3.9.1)가 공식 테스트 범위(K8s 1.33~1.35) 밖인 NKS 1.36 환경에서 정상 동작함을 확인
-- 본 실습은 레거시 `ClusterPolicy`(pattern 방식)로 작성. Kyverno 1.19에서 해당 API가 deprecated되고 CEL 기반 `ValidatingPolicy`로 전환 중임을 확인했으며, 이는 K8s 내장 `ValidatingAdmissionPolicy`와 동일한 CEL 문법으로의 표준화 흐름임
+- Kyverno 1.19(Helm chart 3.9.1)가 공식 테스트 범위(K8S 1.33~1.35) 밖인 NKS 1.36 환경에서 정상 동작함을 확인
+- 본 실습은 레거시 `ClusterPolicy`의 pattern 기반 정책으로 작성. Kyverno 1.19에서 ClusterPolicy/Policy API가 deprecated되고 CEL 기반 `ValidatingPolicy`로 전환 중임을 확인했으며, 이는 K8S의 `ValidatingAdmissionPolicy` CEL 기반 정책 체계와 정렬되는 방향.
