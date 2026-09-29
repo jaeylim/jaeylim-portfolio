@@ -134,7 +134,9 @@ spec:
 
 ### 1. 정책 적용 상태
 
-<!-- 📸 kubectl get clusterpolicy 캡처 붙여넣기 -->
+```
+$ kubectl get clusterpolicy
+```
 
 ### 2. 위반 파드 차단
 
@@ -158,8 +160,6 @@ restrict-image-registries:
   allowed-registries: 'validation error: 허용된 레지스트리(ghcr.io/jaeylim, nginxinc)의 이미지만 사용할 수 있습니다.
   rule allowed-registries failed at path /spec/containers/0/image/'
 ```
-
-<!-- 📸 차단 메시지 캡처 붙여넣기 -->
 
 ### 3. 정상 파드만 생성
 
