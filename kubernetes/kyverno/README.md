@@ -169,7 +169,11 @@ NAME       READY   STATUS    RESTARTS   AGE
 good-pod   1/1     Running   0          22s
 ```
 
-<!-- 📸 kubectl get pod 캡처 붙여넣기 -->
+$ kubectl get clusterpolicy
+NAME                             ADMISSION   BACKGROUND   READY   AGE   MESSAGE
+disallow-privileged-containers   true        true         True    8h    Ready
+require-run-as-nonroot           true        true         True    8h    Ready
+restrict-image-registries        true        true         True    8h    Ready
 
 ### 확인된 사항
 
