@@ -1,0 +1,337 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "hubble-relay"
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "hubble-ui"
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hubble-relay-config
+  namespace: kube-system
+data:
+  config.yaml: |
+    cluster-name: default
+    peer-service: "hubble-peer.kube-system.svc.cluster.local:443"
+    listen-address: :4245
+    dial-timeout:
+    retry-timeout:
+    sort-buffer-len-max:
+    sort-buffer-drain-timeout:
+    tls-client-cert-file: /var/lib/hubble-relay/tls/client.crt
+    tls-client-key-file: /var/lib/hubble-relay/tls/client.key
+    tls-hubble-server-ca-files: /var/lib/hubble-relay/tls/hubble-server-ca.crt
+    disable-server-tls: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hubble-ui-nginx
+  namespace: kube-system
+data:
+  nginx.conf: |
+    server {
+        listen       8081;
+        server_name  localhost;
+        root /app;
+        index index.html;
+        client_max_body_size 1g;
+        location / {
+            proxy_set_header host $host;
+            proxy_set_header x-real-ip $remote_addr;
+            # cors
+            add_header access-control-allow-methods "get, post, put, head, delete, options";
+            add_header access-control-allow-origin *;
+            add_header access-control-max-age 1728000;
+            add_header access-control-expose-headers content-length,grpc-status,grpc-message;
+            add_header access-control-allow-headers range,keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout;
+            if ($request_method = options) {
+                return 204;
+            }
+            # /cors
+            location /api {
+                proxy_http_version 1.1;
+                proxy_pass_request_headers on;
+                proxy_hide_header access-control-allow-origin;
+                proxy_pass http://127.0.0.1:8090;
+            }
+            location / {
+                try_files $uri $uri/ /index.html /index.html;
+            }
+        }
+    }
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: hubble-ui
+  labels:
+    app.kubernetes.io/part-of: cilium
+rules:
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - networkpolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - componentstatuses
+      - endpoints
+      - namespaces
+      - nodes
+      - pods
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - cilium.io
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: hubble-ui
+  labels:
+    app.kubernetes.io/part-of: cilium
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hubble-ui
+subjects:
+  - kind: ServiceAccount
+    name: "hubble-ui"
+    namespace: kube-system
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hubble-relay
+  namespace: kube-system
+  labels:
+    k8s-app: hubble-relay
+    app.kubernetes.io/name: hubble-relay
+    app.kubernetes.io/part-of: cilium
+spec:
+  type: "ClusterIP"
+  selector:
+    k8s-app: hubble-relay
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4245
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hubble-ui
+  namespace: kube-system
+  labels:
+    k8s-app: hubble-ui
+    app.kubernetes.io/name: hubble-ui
+    app.kubernetes.io/part-of: cilium
+spec:
+  type: "ClusterIP"
+  selector:
+    k8s-app: hubble-ui
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hubble-peer
+  namespace: kube-system
+  labels:
+    k8s-app: cilium
+    app.kubernetes.io/part-of: cilium
+    app.kubernetes.io/name: hubble-peer
+spec:
+  selector:
+    k8s-app: cilium
+  ports:
+    - name: peer-service
+      port: 443
+      protocol: TCP
+      targetPort: 4244
+  internalTrafficPolicy: Local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hubble-relay
+  namespace: kube-system
+  labels:
+    k8s-app: hubble-relay
+    app.kubernetes.io/name: hubble-relay
+    app.kubernetes.io/part-of: cilium
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: hubble-relay
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: hubble-relay
+        app.kubernetes.io/name: hubble-relay
+        app.kubernetes.io/part-of: cilium
+    spec:
+      containers:
+        - name: hubble-relay
+          image: "quay.io/cilium/hubble-relay:v1.13.12"
+          imagePullPolicy: IfNotPresent
+          command:
+            - hubble-relay
+          args:
+            - serve
+          ports:
+            - name: grpc
+              containerPort: 4245
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+          volumeMounts:
+            - name: config
+              mountPath: /etc/hubble-relay
+              readOnly: true
+            - name: tls
+              mountPath: /var/lib/hubble-relay/tls
+              readOnly: true
+          terminationMessagePolicy: FallbackToLogsOnError
+      restartPolicy: Always
+      serviceAccountName: "hubble-relay"
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 1
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  k8s-app: cilium
+              topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        kubernetes.io/os: linux
+      volumes:
+        - name: config
+          configMap:
+            name: hubble-relay-config
+            items:
+              - key: config.yaml
+                path: config.yaml
+        - name: tls
+          projected:
+            # note: the leading zero means this number is in octal representation: do not remove it
+            defaultMode: 0400
+            sources:
+              - secret:
+                  name: hubble-relay-client-certs
+                  items:
+                    - key: ca.crt
+                      path: hubble-server-ca.crt
+                    - key: tls.crt
+                      path: client.crt
+                    - key: tls.key
+                      path: client.key
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: hubble-ui
+  namespace: kube-system
+  labels:
+    k8s-app: hubble-ui
+    app.kubernetes.io/name: hubble-ui
+    app.kubernetes.io/part-of: cilium
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: hubble-ui
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: hubble-ui
+        app.kubernetes.io/name: hubble-ui
+        app.kubernetes.io/part-of: cilium
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsGroup: 1001
+        runAsUser: 1001
+      serviceAccountName: "hubble-ui"
+      automountServiceAccountToken: true
+      containers:
+        - name: frontend
+          image: "quay.io/cilium/hubble-ui:v0.13.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8081
+          volumeMounts:
+            - name: hubble-ui-nginx-conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: nginx.conf
+            - name: tmp-dir
+              mountPath: /tmp
+          terminationMessagePolicy: FallbackToLogsOnError
+        - name: backend
+          image: "quay.io/cilium/hubble-ui-backend:v0.13.0"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: EVENTS_SERVER_PORT
+              value: "8090"
+            - name: FLOWS_API_ADDR
+              value: "hubble-relay:80"
+          ports:
+            - name: grpc
+              containerPort: 8090
+          terminationMessagePolicy: FallbackToLogsOnError
+      nodeSelector:
+        kubernetes.io/os: linux
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: hubble-ui-nginx
+          name: hubble-ui-nginx-conf
+        - emptyDir: {}
+          name: tmp-dir
+
