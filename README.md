@@ -13,6 +13,9 @@ AWS/NCP MSP 환경에서 클라우드 인프라를 구축·운영하며, PCI-DSS
 ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat&logo=terraform&logoColor=white)
 ![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=flat&logo=argo&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=flat&logo=ansible&logoColor=white)
+![Cilium](https://img.shields.io/badge/Cilium-F8C517?style=flat&logo=cilium&logoColor=black)
+![Kyverno](https://img.shields.io/badge/Kyverno-1E5B9E?style=flat&logo=kubernetes&logoColor=white)
 
 - 🔐 PCI-DSS · CSAP · ISMS-P · ISO27001 보안 컴플라이언스 대응
 - ☁️ AWS/NCP 클라우드 인프라 설계 및 구축/운영 실무 (MSP)
