@@ -66,13 +66,8 @@ $ kubectl apply -f manifests/hubble.yaml
 $ kubectl -n kube-system port-forward svc/hubble-ui 12000:80
 ```
 
-서비스 맵: backend 80 포트로의 attacker 트래픽이 차단(빨간 점선)으로 표시
-
-<!-- 📸 서비스 맵 캡처 붙여넣기 -->
-
 플로우 테이블: client → backend `forwarded`, attacker → backend `dropped`
-
-<!-- 📸 플로우 테이블 캡처 붙여넣기 -->
+<img width="1252" height="653" alt="Screenshot 2026-09-29 at 2 41 04 PM" src="https://github.com/user-attachments/assets/e6ba13bd-0dfd-4f17-8d70-430af91a3a1b" />
 
 ### 확인된 사항
 - NetworkPolicy에 정의한 Ingress 접근통제가 Cilium 데이터플레인에서 실제로 적용되는 것을 애플리케이션 레벨(curl)과 네트워크 관측 레벨(Hubble policy verdict)에서 교차 검증
