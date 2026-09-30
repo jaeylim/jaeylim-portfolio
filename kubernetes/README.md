@@ -6,7 +6,12 @@
 - 자동 변환 시 누락·오류가 발생하는 항목(볼륨 마운트 경로, 초기화 순서 등) 식별 및 수정
 
 ### Service Mesh (Istio Ambient Mode)
-NCP Kubernetes Service(NKS) 클러스터에 Istio Ambient Mode를 설치하고, mTLS 강제 및 네임스페이스 간 트래픽 통제를 검증
+NKS(Kubernetes v1.36)에 Istio Ambient Mode(1.31)를 설치하고, STRICT mTLS와 신원 기반 AuthorizationPolicy로 서비스 간 인증·인가를 단계별로 검증:
+
+- 네임스페이스 라벨만으로 파드 재시작 없이 메시 편입(HBONE mTLS 터널), STRICT mTLS로 메시 밖 평문 요청 거부
+- 메시에 편입된 비인가 워크로드가 mTLS만으로는 통과됨을 확인 → ServiceAccount 기반 SPIFFE ID로 허용 대상을 제한하는 AuthorizationPolicy 적용 후 차단
+- ztunnel 접근 로그로 요청별 신원(`src.identity`)과 거부 사유(인증 실패/인가 실패)를 구분해 검증
+- 관리형 Cilium 환경 호환성 이슈 2건 해결: `cni-exclusive` 충돌(istio-cni 미기동), IPv4 전용 노드의 IPv6 처리 실패(ztunnel CrashLoop, 파드 편입 실패)
 
 ### 네트워크 정책 및 트래픽 가시성 (Cilium/Hubble)
 NKS(Kubernetes v1.36) 환경에서 선언적 네트워크 정책(NetworkPolicy)으로 네임스페이스 간 접근통제를 구현하고, Hubble로 허용·차단 트래픽을 관측해 통제 동작을 검증:
