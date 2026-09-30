@@ -78,16 +78,14 @@ NKS의 관리형 Cilium CNI 환경에서 Ambient 설치 시 두 가지 호환성
 테스트 구성: `client`(허용 대상), `backend`(보호 대상), `attacker`(비인가 대상) 네임스페이스. Istio 통제만 단독으로 검증하기 위해 Cilium NetworkPolicy는 제거한 상태에서 진행
 
 ### 1. 메시 편입 확인
-
 client·backend는 HBONE(mTLS 터널), 메시 밖 attacker는 TCP(평문)로 처리
 
 ```
-attacker   attacker   198.18.4.182   ...   TCP
-backend    backend    198.18.0.40    ...   HBONE
-client     client     198.18.2.198   ...   HBONE
+$ istioctl ztunnel-config workloads | grep -E "client|backend|attacker"
+attacker     attacker                                       198.18.4.182 test-pool-w-4a88 None     TCP
+backend      backend                                        198.18.0.40  test-pool-w-4f47 None     HBONE
+client       client                                         198.18.2.198 test-pool-w-b539 None     HBONE
 ```
-
-<!-- 📸 캡처 1: istioctl ztunnel-config workloads -->
 
 ### 2. STRICT mTLS: 인증 없는 요청 거부
 
@@ -96,14 +94,29 @@ client     client     198.18.2.198   ...   HBONE
 | client → backend | `200` |
 | attacker(메시 밖) → backend | `000` (exit 56) |
 
-<!-- 📸 캡처 2: STRICT 적용 후 curl 결과 -->
+
+```
+$ kubectl apply -f strict-mtls.yaml
+peerauthentication.security.istio.io/strict-mtls created
+
+$ kubectl exec -n client client -- curl -s -o /dev/null -w "%{http_code}\n" backend.backend.svc.cluster.local
+200
+
+$ kubectl exec -n attacker attacker -- curl -s -o /dev/null -w "%{http_code}\n" --max-time 5 backend.backend.svc.cluster.local
+000
+command terminated with exit code 56
+```
 
 ### 3. ztunnel 접근 로그: 신원 기반 판정
+```
+$ kubectl logs -n istio-system ztunnel-rsktp --tail=50 | grep -E "client|attacker"
 
-<!-- 📸 캡처 3: client 허용 / attacker 거부 로그 -->
+2026-09-30T06:45:59.337908Z info access connection complete src.addr=198.18.2.198:44866 src.workload="client" src.namespace="client" src.identity="spiffe://cluster.local/ns/client/sa/default" src.cluster="Kubernetes" dst.addr=198.18.0.40:15008 dst.hbone_addr=198.18.0.40:80 dst.service="backend.backend.svc.cluster.local" dst.workload="backend" dst.namespace="backend" dst.identity="spiffe://cluster.local/ns/backend/sa/default" dst.cluster="Kubernetes" direction="inbound" bytes_sent=1134 bytes_recv=97 duration="1ms"
+
+2026-09-30T06:45:59.689271Z error access connection complete src.addr=198.18.4.182:46376 src.workload="attacker" src.namespace="attacker" src.cluster="Kubernetes" dst.addr=198.18.0.40:80 dst.service="backend.backend.svc.cluster.local" dst.workload="backend" dst.namespace="backend" dst.cluster="Kubernetes" direction="inbound" bytes_sent=0 bytes_recv=0 duration="0ms" error="connection closed due to policy rejection: explicitly denied by: istio-system/istio_converted_static_strict"
+```
 
 ### 4. AuthorizationPolicy: 인증됐지만 인가되지 않은 요청 거부
-
 attacker를 메시에 편입해 인증서를 부여하면 STRICT만으로는 통과됨(`200`). 신원 기반 ALLOW 정책 적용 후 다시 차단
 
 | 요청 | 결과 |
@@ -111,7 +124,20 @@ attacker를 메시에 편입해 인증서를 부여하면 STRICT만으로는 통
 | client → backend | `200` |
 | attacker(메시 안) → backend | `000` (exit 56) |
 
-<!-- 📸 캡처 4: AuthorizationPolicy 적용 후 curl 결과 -->
+```
+$ kubectl exec -n attacker attacker -- curl -s -o /dev/null -w "%{http_code}\n" --max-time 5 backend.backend.svc.cluster.local
+200    # 메시 편입 후, AuthorizationPolicy 적용 전
+
+$ kubectl apply -f allow-client-only.yaml
+authorizationpolicy.security.istio.io/allow-client-only created
+
+$ kubectl exec -n client client -- curl -s -o /dev/null -w "%{http_code}\n" backend.backend.svc.cluster.local
+200
+
+$ kubectl exec -n attacker attacker -- curl -s -o /dev/null -w "%{http_code}\n" --max-time 5 backend.backend.svc.cluster.local
+000
+command terminated with exit code 56
+```
 
 ### 5. attacker 요청의 단계별 판정 (ztunnel 로그)
 
@@ -121,7 +147,18 @@ attacker를 메시에 편입해 인증서를 부여하면 STRICT만으로는 통
 | 메시 편입 (인가 정책 없음) | `spiffe://cluster.local/ns/attacker/sa/default` | 허용 |
 | AuthorizationPolicy 적용 | `spiffe://cluster.local/ns/attacker/sa/default` | 거부: `policy rejection: allow policies exist, but none allowed` |
 
-<!-- 📸 캡처 5: attacker 로그 3단계 -->
+```
+$ kubectl logs -n istio-system ztunnel-rsktp --tail=20 | grep attacker
+
+# ① 메시 밖: 신원 없음 → STRICT에 의해 거부
+2026-09-30T06:45:59.689271Z error access connection complete src.addr=198.18.4.182:46376 src.workload="attacker" src.namespace="attacker" src.cluster="Kubernetes" dst.addr=198.18.0.40:80 dst.service="backend.backend.svc.cluster.local" dst.workload="backend" dst.namespace="backend" dst.cluster="Kubernetes" direction="inbound" bytes_sent=0 bytes_recv=0 duration="0ms" error="connection closed due to policy rejection: explicitly denied by: istio-system/istio_converted_static_strict"
+
+# ② 메시 편입: 신원 있음, 인가 정책 없음 → 허용
+2026-09-30T06:51:18.870753Z info access connection complete src.addr=198.18.4.182:41402 src.workload="attacker" src.namespace="attacker" src.identity="spiffe://cluster.local/ns/attacker/sa/default" src.cluster="Kubernetes" dst.addr=198.18.0.40:15008 dst.hbone_addr=198.18.0.40:80 dst.service="backend.backend.svc.cluster.local" dst.workload="backend" dst.namespace="backend" dst.identity="spiffe://cluster.local/ns/backend/sa/default" dst.cluster="Kubernetes" direction="inbound" bytes_sent=1134 bytes_recv=97 duration="1ms"
+
+# ③ AuthorizationPolicy 적용: 신원 있음, 허용 대상 아님 → 거부
+2026-09-30T06:52:38.432309Z error access connection complete src.addr=198.18.4.182:41402 src.workload="attacker" src.namespace="attacker" src.identity="spiffe://cluster.local/ns/attacker/sa/default" src.cluster="Kubernetes" dst.addr=198.18.0.40:15008 dst.hbone_addr=198.18.0.40:80 dst.service="backend.backend.svc.cluster.local" dst.workload="backend" dst.namespace="backend" dst.identity="spiffe://cluster.local/ns/backend/sa/default" dst.cluster="Kubernetes" direction="inbound" bytes_sent=0 bytes_recv=0 duration="0ms" error="connection closed due to policy rejection: allow policies exist, but none allowed"
+```
 
 ### 확인된 사항
 
