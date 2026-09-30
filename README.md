@@ -36,7 +36,7 @@ AWS/NCP 아키텍처 설계/구축 및 IaC(CloudFormation, Terraform)기반 구�
 Jenkins, ArgoCD, GitHub Actions 기반 GitOps 배포 파이프라인 구성 및 롤백 시나리오 검증 기록
 
 #### [kubernetes/](https://github.com/jaeylim/jaeylim-portfolio/tree/main/kubernetes)
-컨테이너 보안 통제 실습(Kyverno 기반 Admission Control, Cilium NetworkPolicy·Hubble 트래픽 가시성, Istio Ambient Mode 기반 mTLS·신원 기반 접근통제), Docker Compose → K8s 전환(Kompose), KEDA 오토스케일링 성능 분석(석사 논문, 한양대 우수논문상 수상·KCI 등재) 기록
+컨테이너 보안 통제 실습(Kyverno 기반 Admission Control, Cilium NetworkPolicy·Hubble 트래픽 가시성, Istio Ambient Mode 기반 mTLS 및 L4 신원·L7 요청 단위 접근통제), Docker Compose → K8s 전환(Kompose), KEDA 오토스케일링 성능 분석(석사 논문, 한양대 우수논문상 수상·KCI 등재) 기록
 
 #### [security-compliance/](https://github.com/jaeylim/jaeylim-portfolio/tree/main/security-compliance)
 PCI-DSS, CSAP, ISO27001 기준 증적 수집 및 적용범위 조율 프로세스, 취약점 진단 항목 조치(Ansible), GuardDuty/IAM/mTLS/CloudHSM/Config Rules 등 보안 구성 기록
