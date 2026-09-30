@@ -1,13 +1,10 @@
 ### Service Mesh / mTLS / 접근통제 (Istio Ambient Mode)
-
 NCP Kubernetes Service(NKS, Kubernetes v1.36) 클러스터에 Istio Ambient Mode(1.31)를 설치하고, STRICT mTLS와 신원 기반 AuthorizationPolicy로 서비스 간 인증·인가를 단계별로 검증
 
 ### 위험
-
 클러스터 내부(east-west) 트래픽은 기본적으로 평문으로 전송되며, 네트워크 위치(IP·네임스페이스) 기반 통제만으로는 요청 주체의 신원을 확인할 수 없음. 내부 워크로드가 침해되거나 위치 정보가 신뢰할 수 없는 상황에서는 정상 요청과 비인가 요청을 구분할 근거가 없음
 
 ### 통제
-
 | 단계 | 통제 | 목적 |
 |---|---|---|
 | 1 | Ambient 메시 편입 (`istio.io/dataplane-mode=ambient`) | 파드 재시작·애플리케이션 수정 없이 노드 레벨(ztunnel)에서 mTLS 적용 |
@@ -42,8 +39,7 @@ spec:
         principals: ["cluster.local/ns/client/sa/default"]
 ```
 
-## 설치 및 트러블슈팅
-
+### 설치 및 트러블슈팅
 NKS의 관리형 Cilium CNI 환경에서 Ambient 설치 시 두 가지 호환성 이슈를 로그 기반으로 추적·해결
 
 ### 1. Cilium `cni-exclusive` 충돌
@@ -54,7 +50,6 @@ NKS의 관리형 Cilium CNI 환경에서 Ambient 설치 시 두 가지 호환성
 - 사전 확인: Istio 공식 Cilium 요건에 따라 BPF masquerading 비활성(iptables masquerade 사용), kube-proxy replacement 환경의 `bpf-lb-sock-hostns-only: true` 설정 확인. `cilium-config`가 `addonmanager.kubernetes.io/mode: EnsureExists`로 관리되어 변경값이 벤더 측에서 덮어써지지 않음을 확인
 
 ### 2. IPv4 전용 노드의 IPv6 처리 실패
-
 - 증상 ①: `ztunnel` 전 노드 CrashLoopBackOff
 ```
   Error: readiness server starts
@@ -74,7 +69,6 @@ NKS의 관리형 Cilium CNI 환경에서 Ambient 설치 시 두 가지 호환성
 ```
 
 ### 검증
-
 테스트 구성: `client`(허용 대상), `backend`(보호 대상), `attacker`(비인가 대상) 네임스페이스. Istio 통제만 단독으로 검증하기 위해 Cilium NetworkPolicy는 제거한 상태에서 진행
 
 ### 1. 메시 편입 확인
@@ -88,7 +82,6 @@ client       client                                         198.18.2.198 test-po
 ```
 
 ### 2. STRICT mTLS: 인증 없는 요청 거부
-
 | 요청 | 결과 |
 |---|---|
 | client → backend | `200` |
@@ -161,7 +154,6 @@ $ kubectl logs -n istio-system ztunnel-rsktp --tail=20 | grep attacker
 ```
 
 ### 확인된 사항
-
 - **인증과 인가의 분리**: mTLS(STRICT)는 "신원을 증명했는가"만 판단하므로, 메시에 편입된 비인가 워크로드는 통과됨. 신원별 접근 권한은 AuthorizationPolicy로 별도 통제해야 함
 - **신원 = 인증서**: 각 워크로드는 ServiceAccount 기반 SPIFFE ID를 인증서로 부여받으며, AuthorizationPolicy의 `principals`는 이 ID(`spiffe://` 제외)와 매칭됨
 - **PeerAuthentication의 동작**: STRICT 설정이 ztunnel 내부에서 인가 정책(`istio_converted_static_strict`)으로 변환되어 평문 요청을 거부함
