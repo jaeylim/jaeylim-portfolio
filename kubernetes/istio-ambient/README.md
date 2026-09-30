@@ -8,7 +8,7 @@ NCP Kubernetes Service(NKS, Kubernetes v1.36) 클러스터에 Istio Ambient Mode
 | 단계 | 통제 | 목적 |
 |---|---|---|
 | 1 | Ambient 메시 편입 (`istio.io/dataplane-mode=ambient`) | 파드 재시작·애플리케이션 수정 없이 노드 레벨(ztunnel)에서 mTLS 적용 |
-| 2 | `PeerAuthentication` STRICT | 인증서 없는 평문 요청 거부 → **인증** |
+| 2 | `PeerAuthentication` STRICT | mTLS가 아닌 평문/bypass 요청 거부 →  **인증** 인증된 메시 트래픽만 허용 |
 | 3 | `AuthorizationPolicy` (principals 기반 ALLOW) | 인증된 워크로드 중 허용된 신원만 접근 → **인가** |
 
 ```yaml
@@ -42,10 +42,10 @@ spec:
 ### 설치 및 트러블슈팅
 NKS의 관리형 Cilium CNI 환경에서 Ambient 설치 시 두 가지 호환성 이슈를 로그 기반으로 추적·해결
 
-### 1. Cilium `cni-exclusive` 충돌
+### 1. cilium `cni-exclusive` 충돌
 
 - 증상: `istio-cni-node` 전 노드 `0/1` 상태 지속, `istioctl install` 시 `detected Cilium CNI with 'cni-exclusive=true'` 경고
-- 원인: Cilium이 노드의 `/etc/cni/net.d`에서 다른 CNI 설정 파일을 제거하도록 설정되어 Istio CNI 체이닝 불가
+- 원인: cilium이 노드의 `/etc/cni/net.d`에서 다른 CNI 설정 파일을 제거하도록 설정되어 Istio CNI 체이닝 불가
 - 조치: `cilium-config`의 `cni-exclusive`를 `false`로 변경 후 Cilium DaemonSet 재시작
 - 사전 확인: Istio 공식 Cilium 요건에 따라 BPF masquerading 비활성(iptables masquerade 사용), kube-proxy replacement 환경의 `bpf-lb-sock-hostns-only: true` 설정 확인. `cilium-config`가 `addonmanager.kubernetes.io/mode: EnsureExists`로 관리되어 변경값이 벤더 측에서 덮어써지지 않음을 확인
 
@@ -157,6 +157,6 @@ $ kubectl logs -n istio-system ztunnel-rsktp --tail=20 | grep attacker
 - **인증과 인가의 분리**: mTLS(STRICT)는 "신원을 증명했는가"만 판단하므로, 메시에 편입된 비인가 워크로드는 통과됨. 신원별 접근 권한은 AuthorizationPolicy로 별도 통제해야 함
 - **신원 = 인증서**: 각 워크로드는 ServiceAccount 기반 SPIFFE ID를 인증서로 부여받으며, AuthorizationPolicy의 `principals`는 이 ID(`spiffe://` 제외)와 매칭됨
 - **PeerAuthentication의 동작**: STRICT 설정이 ztunnel 내부에서 인가 정책(`istio_converted_static_strict`)으로 변환되어 평문 요청을 거부함
-- **Cilium NetworkPolicy와의 차이**: 동일한 client/backend/attacker 시나리오에서 Cilium은 네트워크 위치(네임스페이스) 기준으로 패킷을 조용히 폐기(curl exit 28, 타임아웃), Istio는 인증서 신원 기준으로 연결을 능동 종료(curl exit 56). 위치를 신뢰하지 않고 신원으로 판단하는 제로 트러스트 방식
+- **Cilium NetworkPolicy와의 차이**: cilium/kubernetes NetworkPolicy는 L3/L4에서 IP·엔드포인트·kubernetes 라벨 등을 기준으로 트래픽을 통제하는 반면, istio AuthorizationPolicy는 mTLS로 검증된 SPIEFFE기반 워크로드 신원을 정책 조건으로 사용할 수 있음. 이 테스트 구성에서는 cilium NetworkPolicy 차단 시 timeout(exit 28), istio는 인증서 신원 기준으로 연결을 능동 종료 connection reset/close(exit 56)형태로 관찰됨. → 위치를 신뢰하지 않고 신원으로 판단하는 제로 트러스트 방식
 - **Ambient의 운영 이점**: 네임스페이스 라벨만으로 파드 재시작 없이 mTLS 적용
 - **관리형 K8s 도입 리스크**: CNI 설정 주체가 클라우드 벤더인 환경에서는 서비스 메시 도입 시 기존 CNI·노드 커널 설정과의 호환성 검증이 선행되어야 함
