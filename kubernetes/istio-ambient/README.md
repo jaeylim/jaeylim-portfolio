@@ -155,7 +155,7 @@ $ kubectl logs -n istio-system ztunnel-rsktp --tail=20 | grep attacker
 
 ### 확인된 사항
 - **인증과 인가의 분리**: mTLS(STRICT)는 "신원을 증명했는가"만 판단하므로, 메시에 편입된 비인가 워크로드는 통과됨. 신원별 접근 권한은 AuthorizationPolicy로 별도 통제해야 함
-- **신원 = 인증서**: 각 워크로드는 ServiceAccount 기반 SPIFFE ID를 인증서로 부여받으며, AuthorizationPolicy의 `principals`는 이 ID(`spiffe://` 제외)와 매칭됨
+- **신원 = 인증서**: 워크로드에는 ServiceAccount를 기반으로 한 SPIFFE 신원이 부여되며, AuthorizationPolicy의 `principals`에는 `cluster.local/ns/<namespace>/sa/<serviceaccount>`형태의 principal을 지정한다.
 - **PeerAuthentication의 동작**: STRICT 설정이 ztunnel 내부에서 인가 정책(`istio_converted_static_strict`)으로 변환되어 평문 요청을 거부함
 - **Cilium NetworkPolicy와의 차이**: cilium/kubernetes NetworkPolicy는 L3/L4에서 IP·엔드포인트·kubernetes 라벨 등을 기준으로 트래픽을 통제하는 반면, istio AuthorizationPolicy는 mTLS로 검증된 SPIEFFE기반 워크로드 신원을 정책 조건으로 사용할 수 있음. 이 테스트 구성에서는 cilium NetworkPolicy 차단 시 timeout(exit 28), istio는 인증서 신원 기준으로 연결을 능동 종료 connection reset/close(exit 56)형태로 관찰됨. → 위치를 신뢰하지 않고 신원으로 판단하는 제로 트러스트 방식
 - **Ambient의 운영 이점**: 네임스페이스 라벨만으로 파드 재시작 없이 mTLS 적용
