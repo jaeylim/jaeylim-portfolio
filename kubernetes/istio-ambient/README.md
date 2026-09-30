@@ -10,6 +10,7 @@ NCP Kubernetes Service(NKS, Kubernetes v1.36) 클러스터에 Istio Ambient Mode
 | 1 | Ambient 메시 편입 (`istio.io/dataplane-mode=ambient`) | 파드 재시작·애플리케이션 수정 없이 노드 레벨(ztunnel)에서 mTLS 적용 |
 | 2 | `PeerAuthentication` STRICT | mTLS가 아닌 평문/bypass 요청 거부 →  **인증** 인증된 메시 트래픽만 허용 |
 | 3 | `AuthorizationPolicy` (principals 기반 ALLOW) | 인증된 워크로드 중 허용된 신원만 접근 → **인가** |
+| 4 | waypoint + `AuthorizationPolicy` (targetRefs, HTTP 메서드 조건) | 인가된 신원이라도 허용된 요청(GET)만 통과 → **L7 인가** |
 
 ```yaml
 apiVersion: security.istio.io/v1
@@ -133,7 +134,6 @@ command terminated with exit code 56
 ```
 
 ### 5. attacker 요청의 단계별 판정 (ztunnel 로그)
-
 | 단계 | `src.identity` | 판정 |
 |---|---|---|
 | 메시 밖 | 없음 | 거부: `policy rejection: explicitly denied by: istio-system/istio_converted_static_strict` |
@@ -153,6 +153,61 @@ $ kubectl logs -n istio-system ztunnel-rsktp --tail=20 | grep attacker
 2026-09-30T06:52:38.432309Z error access connection complete src.addr=198.18.4.182:41402 src.workload="attacker" src.namespace="attacker" src.identity="spiffe://cluster.local/ns/attacker/sa/default" src.cluster="Kubernetes" dst.addr=198.18.0.40:15008 dst.hbone_addr=198.18.0.40:80 dst.service="backend.backend.svc.cluster.local" dst.workload="backend" dst.namespace="backend" dst.identity="spiffe://cluster.local/ns/backend/sa/default" dst.cluster="Kubernetes" direction="inbound" bytes_sent=0 bytes_recv=0 duration="0ms" error="connection closed due to policy rejection: allow policies exist, but none allowed"
 ```
 
+### 6. waypoint: L7(HTTP) 인가
+ztunnel은 L4에서 동작해 요청 주체(신원)만 판단 가능하고 HTTP 메서드·경로는 판단할 수 없음. backend 네임스페이스에 waypoint(L7 프록시)를 배포해 HTTP 요청 단위 인가를 적용
+
+```
+$ istioctl waypoint apply -n backend --enroll-namespace --wait
+
+$ kubectl get gateways.gateway.networking.k8s.io -n backend
+NAME       CLASS            ADDRESS          PROGRAMMED   AGE
+waypoint   istio-waypoint   198.19.153.128   True         3m56s
+
+$ istioctl ztunnel-config services | grep backend
+backend      backend                               198.19.176.81  waypoint 1/1
+backend      waypoint                              198.19.153.128 None     1/1
+```
+
+waypoint 적용 시 트래픽 경로가 `client → waypoint → backend`로 바뀌어, backend 앞 ztunnel이 보는 출발지 신원이 client가 아닌 waypoint가 됨. 따라서 기존 파드 대상(`selector`) L4 정책을 제거하고, 신원 조건과 HTTP 조건을 함께 waypoint 대상(`targetRefs`) 정책으로 이전
+
+```yaml
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-l7
+  namespace: backend
+spec:
+  targetRefs:
+  - kind: Gateway
+    group: gateway.networking.k8s.io
+    name: waypoint
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/client/sa/default"]
+    to:
+    - operation:
+        methods: ["GET"]
+```
+
+| 요청 | 결과 | 판단 근거 |
+|---|---|---|
+| client GET | `200` | 신원·메서드 모두 허용 |
+| client POST | `403 RBAC: access denied` | 신원은 허용, **HTTP 메서드**로 거부 |
+| attacker GET | `403 RBAC: access denied` | 신원으로 거부 |
+
+```
+--- client GET
+200
+--- client POST
+RBAC: access denied
+403
+--- attacker GET
+RBAC: access denied
+403
+```
+
 ### 확인된 사항
 - **인증과 인가의 분리**: mTLS(STRICT)는 "신원을 증명했는가"만 판단하므로, 메시에 편입된 비인가 워크로드는 통과됨. 신원별 접근 권한은 AuthorizationPolicy로 별도 통제해야 함
 - **신원 = 인증서**: 워크로드에는 ServiceAccount를 기반으로 한 SPIFFE 신원이 부여되며, AuthorizationPolicy의 `principals`에는 `cluster.local/ns/<namespace>/sa/<serviceaccount>`형태의 principal을 지정한다.
@@ -160,3 +215,5 @@ $ kubectl logs -n istio-system ztunnel-rsktp --tail=20 | grep attacker
 - **Cilium NetworkPolicy와의 차이**: cilium/kubernetes NetworkPolicy는 L3/L4에서 IP·엔드포인트·kubernetes 라벨 등을 기준으로 트래픽을 통제하는 반면, istio AuthorizationPolicy는 mTLS로 검증된 SPIEFFE기반 워크로드 신원을 정책 조건으로 사용할 수 있음. 이 테스트 구성에서는 cilium NetworkPolicy 차단 시 timeout(exit 28), istio는 인증서 신원 기준으로 연결을 능동 종료 connection reset/close(exit 56)형태로 관찰됨. → 위치를 신뢰하지 않고 신원으로 판단하는 제로 트러스트 방식
 - **Ambient의 운영 이점**: 네임스페이스 라벨만으로 파드 재시작 없이 mTLS 적용
 - **관리형 K8s 도입 리스크**: CNI 설정 주체가 클라우드 벤더인 환경에서는 서비스 메시 도입 시 기존 CNI·노드 커널 설정과의 호환성 검증이 선행되어야 함
+- **L4와 L7의 차이**: 동일한 attacker 요청이 ztunnel(L4)에서는 연결 종료(curl exit 56), waypoint(L7)에서는 HTTP `403 RBAC: access denied` 응답으로 거부됨. HTTP 메서드·경로 단위 통제는 waypoint가 있어야만 가능
+- **정책 적용 지점의 이동**: waypoint 도입 시 목적지 ztunnel이 보는 출발지 신원이 waypoint로 바뀌므로, 기존 파드 대상 L4 정책을 그대로 두면 정상 트래픽까지 차단됨. 인가 판단은 waypoint 대상 정책으로 일원화해야 함
